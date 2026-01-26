@@ -40,5 +40,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Employee routes
 Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->group(function () {
-    // Employee routes will be added in Phase 5
+    Route::get('/dashboard', [\App\Http\Controllers\Employee\DashboardController::class, 'index'])->name('dashboard');
+    
+    Route::get('/pay-slips', [\App\Http\Controllers\Employee\PaySlipController::class, 'index'])->name('pay-slips.index');
+    Route::get('/pay-slips/{pay_slip}', [\App\Http\Controllers\Employee\PaySlipController::class, 'show'])->name('pay-slips.show');
+    Route::get('/pay-slips/{pay_slip}/download', [\App\Http\Controllers\Employee\PaySlipController::class, 'download'])->name('pay-slips.download');
+    
+    Route::get('/leave', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'index'])->name('leave.index');
+    Route::get('/leave/create', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'create'])->name('leave.create');
+    Route::post('/leave', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'store'])->name('leave.store');
+    Route::get('/leave/{leave_request}', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'show'])->name('leave.show');
+    
+    Route::get('/attendance', [\App\Http\Controllers\Employee\AttendanceController::class, 'index'])->name('attendance.index');
+    
+    Route::get('/profile', [\App\Http\Controllers\Employee\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\Employee\ProfileController::class, 'update'])->name('profile.update');
 });
