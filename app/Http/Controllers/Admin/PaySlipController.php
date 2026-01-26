@@ -95,9 +95,11 @@ class PaySlipController extends Controller
         $fileName = "pay-slip-{$paySlip->user->name}-{$paySlip->month}-{$paySlip->year}.pdf";
         $fileName = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $fileName);
 
-        $filePath = storage_path('app/' . $paySlip->file_path);
+        $filePath = Storage::disk('local')->path($paySlip->file_path);
         
-        return response()->download($filePath, $fileName);
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     /**

@@ -51,8 +51,10 @@ class PaySlipController extends Controller
         }
 
         $fileName = "pay-slip-{$pay_slip->month}-{$pay_slip->year}.pdf";
-        $filePath = storage_path('app/' . $pay_slip->file_path);
-
-        return response()->download($filePath, $fileName);
+        $filePath = Storage::disk('local')->path($pay_slip->file_path);
+        
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 }
