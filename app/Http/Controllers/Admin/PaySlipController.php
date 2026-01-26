@@ -47,9 +47,20 @@ class PaySlipController extends Controller
             'year' => ['required', 'integer', 'min:2000', 'max:2100'],
             'gross_salary' => ['required', 'numeric', 'min:0'],
             'deductions' => ['nullable', 'numeric', 'min:0'],
-            'net_salary' => ['required', 'numeric', 'min:0'],
             'file' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
         ]);
+
+        // Auto-calculate net salary
+        $grossSalary = $validated['gross_salary'];
+        $deductions = $validated['deductions'] ?? 0;
+        $netSalary = $grossSalary - $deductions;
+
+        // Validate that deductions don't exceed gross salary
+        if ($deductions > $grossSalary) {
+            return back()
+                ->withInput()
+                ->withErrors(['deductions' => 'Deductions cannot exceed gross salary.']);
+        }
 
         $filePath = null;
         if ($request->hasFile('file')) {
@@ -60,9 +71,9 @@ class PaySlipController extends Controller
             'user_id' => $validated['user_id'],
             'month' => $validated['month'],
             'year' => $validated['year'],
-            'gross_salary' => $validated['gross_salary'],
-            'deductions' => $validated['deductions'] ?? 0,
-            'net_salary' => $validated['net_salary'],
+            'gross_salary' => $grossSalary,
+            'deductions' => $deductions,
+            'net_salary' => $netSalary,
             'file_path' => $filePath,
             'distributed_at' => now(),
             'created_by' => Auth::id(),

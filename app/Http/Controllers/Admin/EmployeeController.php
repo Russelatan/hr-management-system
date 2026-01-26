@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -47,12 +48,15 @@ class EmployeeController extends Controller
             'employment_status' => ['nullable', 'in:active,on_leave,terminated,suspended'],
         ]);
 
+        // Auto-generate employee_id if not provided
+        $employeeId = $validated['employee_id'] ?? $this->generateEmployeeId($validated['hire_date'] ?? now());
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'employee',
-            'employee_id' => $validated['employee_id'] ?? null,
+            'employee_id' => $employeeId,
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
@@ -62,6 +66,59 @@ class EmployeeController extends Controller
 
         return redirect()->route('admin.employees.index')
             ->with('success', 'Employee created successfully.');
+    }
+
+    /**
+     * Generate a unique employee ID based on hire date.
+     * Format: EMP{YYYYMMDD}-{NNN}
+     * 
+     * @param \DateTime|string $hireDate
+     * @return string
+     */
+    private function generateEmployeeId($hireDate): string
+    {
+        // Convert to Carbon instance if string
+        if (is_string($hireDate)) {
+            $hireDate = Carbon::parse($hireDate);
+        }
+
+        // Format date as YYYYMMDD
+        $datePrefix = $hireDate->format('Ymd');
+        $prefix = "EMP{$datePrefix}-";
+
+        // Find existing IDs with the same prefix
+        $existingIds = User::where('employee_id', 'like', $prefix . '%')
+            ->whereNotNull('employee_id')
+            ->pluck('employee_id')
+            ->toArray();
+
+        // Extract sequence numbers
+        $sequences = [];
+        foreach ($existingIds as $id) {
+            if (preg_match('/' . preg_quote($prefix, '/') . '(\d+)$/', $id, $matches)) {
+                $sequences[] = (int) $matches[1];
+            }
+        }
+
+        // Find next available sequence number
+        $nextSequence = 1;
+        if (!empty($sequences)) {
+            $maxSequence = max($sequences);
+            $nextSequence = $maxSequence + 1;
+        }
+
+        // Generate ID with 3-digit sequence
+        $employeeId = $prefix . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+
+        // Ensure uniqueness (handle race conditions)
+        $attempts = 0;
+        while (User::where('employee_id', $employeeId)->exists() && $attempts < 10) {
+            $nextSequence++;
+            $employeeId = $prefix . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+            $attempts++;
+        }
+
+        return $employeeId;
     }
 
     /**
@@ -96,9 +153,9 @@ class EmployeeController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $employee],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $employee->id],
             'password' => ['nullable', 'confirmed', Password::defaults()],
-            'employee_id' => ['nullable', 'string', 'max:255', 'unique:users,employee_id,' . $employee],
+            // employee_id is not validated in update - it's read-only
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string'],
             'date_of_birth' => ['nullable', 'date'],
@@ -109,7 +166,7 @@ class EmployeeController extends Controller
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'employee_id' => $validated['employee_id'] ?? null,
+            // Don't update employee_id - it's auto-generated and should remain unchanged
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,

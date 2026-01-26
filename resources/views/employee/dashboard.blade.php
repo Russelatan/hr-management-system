@@ -98,7 +98,7 @@
                                         <div class="flex items-center space-x-4">
                                             <div class="flex-1 min-w-0">
                                                 <p class="text-sm font-medium text-gray-900">{{ $paySlip->month }}/{{ $paySlip->year }}</p>
-                                                <p class="text-sm text-gray-500">Net Salary: ${{ number_format($paySlip->net_salary, 2) }}</p>
+                                                <p class="text-sm text-gray-500">Net Salary: ₱{{ number_format($paySlip->net_salary, 2) }}</p>
                                             </div>
                                             <div>
                                                 <a href="{{ route('employee.pay-slips.show', $paySlip) }}" class="text-indigo-600 hover:text-indigo-900 text-sm">View</a>

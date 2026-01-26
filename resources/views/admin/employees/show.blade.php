@@ -66,7 +66,7 @@
                         @foreach($paySlips as $paySlip)
                             <li class="text-sm">
                                 <span class="text-gray-900">{{ $paySlip->month }}/{{ $paySlip->year }}</span>
-                                <span class="text-gray-500 ml-2">${{ number_format($paySlip->net_salary, 2) }}</span>
+                                <span class="text-gray-500 ml-2">₱{{ number_format($paySlip->net_salary, 2) }}</span>
                             </li>
                         @endforeach
                     </ul>

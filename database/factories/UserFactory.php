@@ -29,6 +29,13 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => 'employee',
+            'employee_id' => 'EMP' . str_pad(fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'phone' => fake()->phoneNumber(),
+            'address' => fake()->address(),
+            'date_of_birth' => fake()->date('Y-m-d', '-25 years'),
+            'hire_date' => fake()->date('Y-m-d', '-2 years'),
+            'employment_status' => fake()->randomElement(['active', 'active', 'active', 'on_leave']), // Mostly active
         ];
     }
 
@@ -39,6 +46,29 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+            'employee_id' => null,
+            'employment_status' => 'active',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an employee.
+     */
+    public function employee(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'employee',
+            'employment_status' => 'active',
         ]);
     }
 }

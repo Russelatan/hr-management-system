@@ -55,9 +55,11 @@
                 </div>
 
                 <div>
-                    <label for="net_salary" class="block text-sm font-medium text-gray-700">Net Salary *</label>
-                    <input type="number" name="net_salary" id="net_salary" required step="0.01" min="0" value="{{ old('net_salary') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <label for="net_salary_display" class="block text-sm font-medium text-gray-700">Net Salary</label>
+                    <div id="net_salary_display" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
+                        ₱0.00
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Calculated automatically: Gross Salary - Deductions</p>
                 </div>
 
                 <div class="md:col-span-2">
@@ -79,4 +81,44 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const grossInput = document.getElementById('gross_salary');
+        const deductionsInput = document.getElementById('deductions');
+        const netDisplay = document.getElementById('net_salary_display');
+
+        function calculateNet() {
+            const gross = parseFloat(grossInput.value) || 0;
+            const deductions = parseFloat(deductionsInput.value) || 0;
+            const net = Math.max(0, gross - deductions); // Ensure non-negative
+            
+            // Format with peso symbol and 2 decimal places
+            const formatted = '₱' + net.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            netDisplay.textContent = formatted;
+            
+            // Visual feedback if deductions exceed gross
+            if (deductions > gross) {
+                netDisplay.classList.remove('text-gray-900');
+                netDisplay.classList.add('text-red-600');
+            } else {
+                netDisplay.classList.remove('text-red-600');
+                netDisplay.classList.add('text-gray-900');
+            }
+        }
+
+        // Calculate on input
+        grossInput.addEventListener('input', calculateNet);
+        deductionsInput.addEventListener('input', calculateNet);
+        
+        // Calculate on page load if old values exist
+        calculateNet();
+    });
+</script>
+@endpush
 @endsection

@@ -36,9 +36,10 @@
                 </div>
 
                 <div>
-                    <label for="employee_id" class="block text-sm font-medium text-gray-700">Employee ID</label>
-                    <input type="text" name="employee_id" id="employee_id" value="{{ old('employee_id') }}"
+                    <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
+                    <input type="date" name="hire_date" id="hire_date" value="{{ old('hire_date') }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <p class="mt-1 text-sm text-gray-500">Employee ID will be auto-generated based on hire date (format: EMPYYYYMMDD-NNN)</p>
                 </div>
 
                 <div>
@@ -53,11 +54,6 @@
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
 
-                <div>
-                    <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
-                    <input type="date" name="hire_date" id="hire_date" value="{{ old('hire_date') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
 
                 <div>
                     <label for="employment_status" class="block text-sm font-medium text-gray-700">Employment Status</label>

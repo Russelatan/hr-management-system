@@ -37,9 +37,9 @@
                                 <tr>
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $paySlip->user->name }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $paySlip->month }}/{{ $paySlip->year }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${{ number_format($paySlip->gross_salary, 2) }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${{ number_format($paySlip->deductions, 2) }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">${{ number_format($paySlip->net_salary, 2) }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($paySlip->gross_salary, 2) }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($paySlip->deductions, 2) }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">₱{{ number_format($paySlip->net_salary, 2) }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $paySlip->distributed_at ? $paySlip->distributed_at->format('M d, Y') : 'N/A' }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <a href="{{ route('admin.pay-slips.show', $paySlip) }}" class="text-indigo-600 hover:text-indigo-900">View</a>

@@ -24,15 +24,15 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Gross Salary</dt>
-                        <dd class="mt-1 text-sm text-gray-900">${{ number_format($paySlip->gross_salary, 2) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">₱{{ number_format($paySlip->gross_salary, 2) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Deductions</dt>
-                        <dd class="mt-1 text-sm text-gray-900">${{ number_format($paySlip->deductions, 2) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">₱{{ number_format($paySlip->deductions, 2) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Net Salary</dt>
-                        <dd class="mt-1 text-lg font-semibold text-gray-900">${{ number_format($paySlip->net_salary, 2) }}</dd>
+                        <dd class="mt-1 text-lg font-semibold text-gray-900">₱{{ number_format($paySlip->net_salary, 2) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Distributed At</dt>

@@ -38,8 +38,9 @@
 
                 <div>
                     <label for="employee_id" class="block text-sm font-medium text-gray-700">Employee ID</label>
-                    <input type="text" name="employee_id" id="employee_id" value="{{ old('employee_id', $employee->employee_id) }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <input type="text" name="employee_id" id="employee_id" value="{{ old('employee_id', $employee->employee_id) }}" readonly
+                           class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm sm:text-sm cursor-not-allowed">
+                    <p class="mt-1 text-sm text-gray-500">Employee ID is auto-generated and cannot be changed</p>
                 </div>
 
                 <div>
