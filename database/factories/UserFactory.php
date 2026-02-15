@@ -36,6 +36,7 @@ class UserFactory extends Factory
             'date_of_birth' => fake()->date('Y-m-d', '-25 years'),
             'hire_date' => fake()->date('Y-m-d', '-2 years'),
             'employment_status' => fake()->randomElement(['active', 'active', 'active', 'on_leave']), // Mostly active
+            'employment_type' => fake()->randomElement(['full-time', 'part-time', 'regular', null]), // Random employment type or null
         ];
     }
 

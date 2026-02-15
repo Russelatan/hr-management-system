@@ -46,12 +46,19 @@ class LeaveBalanceSeeder extends Seeder
                 $usedDays = fake()->numberBetween(0, min($totalDays, 8));
                 $remainingDays = $totalDays - $usedDays;
 
+                $totalHours = in_array($leaveType, ['sick', 'vacation']) ? $totalDays * 8 : 0;
+                $usedHours = in_array($leaveType, ['sick', 'vacation']) ? fake()->numberBetween(0, min($totalHours, 32)) : 0;
+                $remainingHours = $totalHours - $usedHours;
+
                 LeaveBalance::create([
                     'user_id' => $employee->id,
                     'leave_type' => $leaveType,
                     'total_days' => $totalDays,
                     'used_days' => $usedDays,
                     'remaining_days' => $remainingDays,
+                    'total_hours' => $totalHours,
+                    'used_hours' => $usedHours,
+                    'remaining_hours' => $remainingHours,
                     'year' => $currentYear,
                 ]);
             }

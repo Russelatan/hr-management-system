@@ -43,8 +43,9 @@
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Leave Type</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Start Date</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">End Date</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Days</th>
+                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Duration</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Doc</th>
                                 <th class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Actions</span></th>
                             </tr>
                         </thead>
@@ -52,10 +53,16 @@
                             @forelse($leaveRequests as $request)
                                 <tr>
                                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $request->user->name }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst($request->leave_type) }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ ucfirst(str_replace('-', ' ', $request->leave_type)) }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->start_date->format('M d, Y') }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->end_date->format('M d, Y') }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->days_requested }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($request->hours_requested)
+                                            {{ $request->hours_requested }} hrs
+                                        @else
+                                            {{ $request->days_requested }} day(s)
+                                        @endif
+                                    </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                             @if($request->status === 'approved') bg-green-100 text-green-800
@@ -81,7 +88,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No leave requests found</td>
+                                    <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No leave requests found</td>
                                 </tr>
                             @endforelse
                         </tbody>

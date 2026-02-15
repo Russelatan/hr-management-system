@@ -65,6 +65,17 @@
                         <option value="suspended" {{ old('employment_status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
                     </select>
                 </div>
+
+                <div>
+                    <label for="employment_type" class="block text-sm font-medium text-gray-700">Employment Type</label>
+                    <select name="employment_type" id="employment_type" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select Employment Type</option>
+                        <option value="full-time" {{ old('employment_type') == 'full-time' ? 'selected' : '' }}>Full-Time</option>
+                        <option value="part-time" {{ old('employment_type') == 'part-time' ? 'selected' : '' }}>Part-Time</option>
+                        <option value="regular" {{ old('employment_type') == 'regular' ? 'selected' : '' }}>Regular</option>
+                    </select>
+                </div>
             </div>
 
             <div class="mt-6">

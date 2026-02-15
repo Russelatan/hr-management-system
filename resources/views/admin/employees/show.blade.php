@@ -43,6 +43,10 @@
                         </dd>
                     </div>
                     <div>
+                        <dt class="text-sm font-medium text-gray-500">Employment Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $employee->employment_type ? ucfirst(str_replace('-', ' ', $employee->employment_type)) : 'N/A' }}</dd>
+                    </div>
+                    <div>
                         <dt class="text-sm font-medium text-gray-500">Date of Birth</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $employee->date_of_birth ? $employee->date_of_birth->format('M d, Y') : 'N/A' }}</dd>
                     </div>

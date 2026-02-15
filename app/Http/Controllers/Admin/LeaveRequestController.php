@@ -7,6 +7,7 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveBalance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class LeaveRequestController extends Controller
 {
@@ -97,5 +98,26 @@ class LeaveRequestController extends Controller
 
         return redirect()->route('admin.leave-requests.index')
             ->with('success', 'Leave request rejected.');
+    }
+
+    /**
+     * Download the supporting document for a leave request.
+     */
+    public function downloadDocument(LeaveRequest $leave_request)
+    {
+        if (! $leave_request->hasDocument()) {
+            abort(404, 'No document attached to this leave request.');
+        }
+
+        $path = Storage::disk('local')->path($leave_request->document_path);
+        if (! file_exists($path)) {
+            abort(404, 'Document file not found.');
+        }
+
+        $fileName = basename($leave_request->document_path);
+
+        return response()->download($path, $fileName, [
+            'Content-Type' => 'application/octet-stream',
+        ]);
     }
 }

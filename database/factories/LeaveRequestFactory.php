@@ -21,14 +21,21 @@ class LeaveRequestFactory extends Factory
         $startDate = fake()->dateTimeBetween('-6 months', '+3 months');
         $endDate = fake()->dateTimeBetween($startDate, $startDate->format('Y-m-d') . ' +14 days');
         $daysRequested = (int) $startDate->diff($endDate)->days + 1;
+        $leaveType = fake()->randomElement(['sick', 'vacation', 'personal', 'maternity-leave', 'paternity-leave', 'bereavement-leave', 'other']);
+
+        $hoursRequested = in_array($leaveType, LeaveRequest::leaveTypesWithHoursSupport())
+            ? (fake()->boolean(30) ? null : fake()->numberBetween(1, 8))
+            : null;
 
         return [
             'user_id' => User::factory()->employee(),
-            'leave_type' => fake()->randomElement(['sick', 'vacation', 'personal', 'other']),
+            'leave_type' => $leaveType,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'days_requested' => $daysRequested,
+            'days_requested' => $hoursRequested && $daysRequested === 1 ? 0 : $daysRequested,
+            'hours_requested' => $hoursRequested,
             'reason' => fake()->optional()->sentence(),
+            'document_path' => null,
             'status' => fake()->randomElement(['pending', 'approved', 'rejected']),
             'approved_by' => null,
             'approved_at' => null,

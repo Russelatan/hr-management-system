@@ -27,6 +27,7 @@
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Employee ID</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Employment Type</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Hire Date</th>
                                 <th class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Actions</span></th>
                             </tr>
@@ -47,20 +48,21 @@
                                             {{ ucfirst($employee->employment_status) }}
                                         </span>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $employee->employment_type ? ucfirst(str_replace('-', ' ', $employee->employment_type)) : 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $employee->hire_date ? $employee->hire_date->format('M d, Y') : 'N/A' }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <a href="{{ route('admin.employees.show', $employee) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
                                         <a href="{{ route('admin.employees.edit', $employee) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                        <form action="{{ route('admin.employees.destroy', $employee) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                                        <form action="{{ route('admin.employees.destroy', $employee) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this employee?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                            <button type="submit" class="text-red-600 hover:text-red-900">Remove</button>
                                         </form>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No employees found</td>
+                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No employees found</td>
                                 </tr>
                             @endforelse
                         </tbody>

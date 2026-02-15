@@ -22,9 +22,12 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 @foreach($leaveBalances as $balance)
                     <div>
-                        <div class="text-sm text-gray-500">{{ ucfirst($balance->leave_type) }}</div>
+                        <div class="text-sm text-gray-500">{{ ucfirst(str_replace('-', ' ', $balance->leave_type)) }}</div>
                         <div class="text-2xl font-semibold text-gray-900">{{ $balance->remaining_days }}</div>
                         <div class="text-xs text-gray-500">of {{ $balance->total_days }} days</div>
+                        @if($balance->hasHoursSupport())
+                            <div class="text-sm text-gray-600 mt-1">{{ $balance->remaining_hours }} hrs</div>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -41,8 +44,9 @@
                                 <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Leave Type</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Start Date</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">End Date</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Days</th>
+                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Duration</th>
                                 <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Doc</th>
                                 <th class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Actions</span></th>
                             </tr>
                         </thead>
@@ -62,13 +66,20 @@
                                             {{ ucfirst($request->status) }}
                                         </span>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                        @if($request->hasDocument())
+                                            <span class="text-green-600" title="Document attached">&#128196;</span>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <a href="{{ route('employee.leave.show', $request) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No leave requests found</td>
+                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No leave requests found</td>
                                 </tr>
                             @endforelse
                         </tbody>

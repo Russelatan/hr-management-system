@@ -28,6 +28,7 @@ class User extends Authenticatable
         'date_of_birth',
         'hire_date',
         'employment_status',
+        'employment_type',
     ];
 
     /**

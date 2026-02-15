@@ -30,7 +30,14 @@ class LeaveRequestSeeder extends Seeder
             for ($i = 0; $i < $requestCount; $i++) {
                 $startDate = fake()->dateTimeBetween('-6 months', '+2 months');
                 $endDate = fake()->dateTimeBetween($startDate, $startDate->format('Y-m-d') . ' +10 days');
+                $leaveType = fake()->randomElement(['sick', 'vacation', 'personal', 'maternity-leave', 'paternity-leave', 'bereavement-leave', 'other']);
                 $daysRequested = (int) $startDate->diff($endDate)->days + 1;
+                $hoursRequested = in_array($leaveType, LeaveRequest::leaveTypesWithHoursSupport()) && $daysRequested === 1 && fake()->boolean(30)
+                    ? fake()->numberBetween(1, 8)
+                    : null;
+                if ($hoursRequested) {
+                    $daysRequested = 0;
+                }
 
                 $status = fake()->randomElement(['pending', 'approved', 'rejected']);
                 $approvedBy = null;
@@ -38,16 +45,20 @@ class LeaveRequestSeeder extends Seeder
 
                 if ($status !== 'pending') {
                     $approvedBy = $admin->id;
-                    $approvedAt = fake()->dateTimeBetween($startDate, 'now');
+                    $approvedAt = $startDate->getTimestamp() <= time()
+                        ? fake()->dateTimeBetween($startDate->format('Y-m-d'), 'now')
+                        : now();
                 }
 
                 LeaveRequest::create([
                     'user_id' => $employee->id,
-                    'leave_type' => fake()->randomElement(['sick', 'vacation', 'personal', 'other']),
+                    'leave_type' => $leaveType,
                     'start_date' => $startDate,
                     'end_date' => $endDate,
                     'days_requested' => $daysRequested,
+                    'hours_requested' => $hoursRequested,
                     'reason' => fake()->optional(0.8)->sentence(),
+                    'document_path' => null,
                     'status' => $status,
                     'approved_by' => $approvedBy,
                     'approved_at' => $approvedAt,

@@ -15,7 +15,9 @@ class LeaveRequest extends Model
         'start_date',
         'end_date',
         'days_requested',
+        'hours_requested',
         'reason',
+        'document_path',
         'status',
         'approved_by',
         'approved_at',
@@ -38,5 +40,20 @@ class LeaveRequest extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function hasDocument(): bool
+    {
+        return ! empty($this->document_path);
+    }
+
+    public static function leaveTypesWithHoursSupport(): array
+    {
+        return ['sick', 'vacation'];
+    }
+
+    public static function leaveTypesRequiringDocument(): array
+    {
+        return ['maternity-leave'];
     }
 }

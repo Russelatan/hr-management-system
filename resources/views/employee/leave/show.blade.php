@@ -16,7 +16,7 @@
                 <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Leave Type</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($leaveRequest->leave_type) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ ucfirst(str_replace('-', ' ', $leaveRequest->leave_type)) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Start Date</dt>
@@ -27,9 +27,25 @@
                         <dd class="mt-1 text-sm text-gray-900">{{ $leaveRequest->end_date->format('M d, Y') }}</dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Days Requested</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $leaveRequest->days_requested }}</dd>
+                        <dt class="text-sm font-medium text-gray-500">Duration</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            @if($leaveRequest->hours_requested)
+                                {{ $leaveRequest->hours_requested }} hours
+                            @else
+                                {{ $leaveRequest->days_requested }} day(s)
+                            @endif
+                        </dd>
                     </div>
+                    @if($leaveRequest->hasDocument())
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">Supporting Document</dt>
+                            <dd class="mt-1">
+                                <a href="{{ route('employee.leave.document', $leaveRequest) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    Download Document
+                                </a>
+                            </dd>
+                        </div>
+                    @endif
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Status</dt>
                         <dd class="mt-1">

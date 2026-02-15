@@ -1,0 +1,20 @@
+
+To-do
+
+add: 
+
+	- employment type: (full-time, part-time, regular)
+	
+	- sick leave && vacation leave: indicate number of hours of leave
+
+	- leave type: (maternity-leave, sick-leave, paternity-leave, bereavement-leave)
+
+	- logo (aclc) theme: AMA
+
+	- maternity leave must require documents upon submitting leave
+
+	- leave must not input previous month 
+
+	- 
+
+	

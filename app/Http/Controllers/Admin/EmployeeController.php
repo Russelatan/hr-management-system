@@ -46,6 +46,7 @@ class EmployeeController extends Controller
             'date_of_birth' => ['nullable', 'date'],
             'hire_date' => ['nullable', 'date'],
             'employment_status' => ['nullable', 'in:active,on_leave,terminated,suspended'],
+            'employment_type' => ['nullable', 'in:full-time,part-time,regular'],
         ]);
 
         // Auto-generate employee_id if not provided
@@ -62,6 +63,7 @@ class EmployeeController extends Controller
             'date_of_birth' => $validated['date_of_birth'] ?? null,
             'hire_date' => $validated['hire_date'] ?? null,
             'employment_status' => $validated['employment_status'] ?? 'active',
+            'employment_type' => $validated['employment_type'] ?? null,
         ]);
 
         return redirect()->route('admin.employees.index')
@@ -161,6 +163,7 @@ class EmployeeController extends Controller
             'date_of_birth' => ['nullable', 'date'],
             'hire_date' => ['nullable', 'date'],
             'employment_status' => ['required', 'in:active,on_leave,terminated,suspended'],
+            'employment_type' => ['nullable', 'in:full-time,part-time,regular'],
         ]);
 
         $updateData = [
@@ -172,6 +175,7 @@ class EmployeeController extends Controller
             'date_of_birth' => $validated['date_of_birth'] ?? null,
             'hire_date' => $validated['hire_date'] ?? null,
             'employment_status' => $validated['employment_status'],
+            'employment_type' => $validated['employment_type'] ?? null,
         ];
 
         if (!empty($validated['password'])) {

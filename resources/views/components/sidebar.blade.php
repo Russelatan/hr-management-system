@@ -3,8 +3,8 @@
 <aside class="hidden lg:flex lg:flex-shrink-0">
     <div class="flex flex-col w-64">
         <div class="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto">
-            <div class="flex items-center flex-shrink-0 px-4">
-                <span class="text-lg font-semibold text-gray-900">Navigation</span>
+            <div class="flex items-center justify-center flex-shrink-0 px-4">
+                <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="h-12 w-auto">
             </div>
             <div class="mt-5 flex-1 flex flex-col">
                 <nav class="flex-1 px-2 space-y-1">

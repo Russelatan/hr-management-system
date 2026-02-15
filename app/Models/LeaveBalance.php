@@ -15,11 +15,19 @@ class LeaveBalance extends Model
         'total_days',
         'used_days',
         'remaining_days',
+        'total_hours',
+        'used_hours',
+        'remaining_hours',
         'year',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function hasHoursSupport(): bool
+    {
+        return in_array($this->leave_type, LeaveRequest::leaveTypesWithHoursSupport());
     }
 }

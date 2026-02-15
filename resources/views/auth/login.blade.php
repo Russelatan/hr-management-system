@@ -9,8 +9,11 @@
 <body class="bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full space-y-8 p-8">
         <div>
+            <div class="flex justify-center">
+                <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="h-16 w-auto">
+            </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                HR Management System
+                HR Management
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600">
                 Sign in to your account
@@ -19,15 +22,7 @@
         <form class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-md" method="POST" action="{{ route('login') }}">
             @csrf
 
-            @if ($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            
 
             <div class="rounded-md shadow-sm space-y-4">
                 <div>
@@ -35,9 +30,7 @@
                     <input id="email" name="email" type="email" autocomplete="email" required
                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm @error('email') border-red-500 @enderror"
                            value="{{ old('email') }}" placeholder="Email address">
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                   
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
@@ -49,6 +42,16 @@
                     @enderror
                 </div>
             </div>
+
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
