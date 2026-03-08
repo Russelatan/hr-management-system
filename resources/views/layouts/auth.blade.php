@@ -25,9 +25,9 @@
         {{-- Left brand panel (hidden on mobile) --}}
         <div class="hidden w-1/2 items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 lg:flex">
             <div class="max-w-md px-8 text-center text-white">
-                <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="mx-auto mb-8 h-20 w-auto brightness-0 invert">
-                <h1 class="text-4xl font-bold">HR Management System</h1>
-                <p class="mt-4 text-lg text-indigo-100">Streamline your workforce management with our comprehensive HR platform.</p>
+                <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="mx-auto mb-8 h-24 w-24 rounded-2xl object-cover shadow-lg shadow-black/20">
+                <h1 class="text-4xl font-bold">Payroll Management System</h1>
+                <p class="mt-4 text-lg text-indigo-100">Streamline your workforce management with our comprehensive payroll platform.</p>
             </div>
         </div>
 
@@ -36,8 +36,8 @@
             <div class="w-full max-w-md">
                 {{-- Mobile logo --}}
                 <div class="mb-8 text-center lg:hidden">
-                    <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="mx-auto h-14 w-auto">
-                    <h2 class="mt-4 text-2xl font-bold text-gray-900 dark:text-gray-100">HR Management</h2>
+                    <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="mx-auto h-16 w-16 rounded-xl object-cover">
+                    <h2 class="mt-4 text-2xl font-bold text-gray-900 dark:text-gray-100">Payroll Management</h2>
                 </div>
 
                 @yield('content')

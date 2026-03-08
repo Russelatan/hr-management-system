@@ -2,9 +2,12 @@
 
 <div class="flex h-full flex-col bg-slate-900 text-white">
     {{-- Logo --}}
-    <div class="flex h-16 items-center gap-3 px-6 border-b border-white/10">
-        <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="h-8 w-auto">
-        <span class="text-lg font-semibold tracking-tight">HR System</span>
+    <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+        <img src="{{ asset('images/logo/aclc.svg') }}" alt="ACLC Logo" class="h-11 w-11 rounded-lg object-cover shrink-0">
+        <div class="min-w-0">
+            <p class="text-sm font-bold tracking-wide text-white leading-tight">ACLC College</p>
+            <p class="text-xs text-slate-400 leading-tight mt-0.5">Payroll Management</p>
+        </div>
     </div>
 
     {{-- Navigation --}}
