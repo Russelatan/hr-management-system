@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\LeaveRequest;
 use App\Models\LeaveBalance;
+use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class LeaveRequestController extends Controller
     public function index()
     {
         $status = request()->get('status', 'all');
-        
+
         $query = LeaveRequest::with(['user', 'approver']);
 
         if ($status !== 'all') {
@@ -35,6 +35,7 @@ class LeaveRequestController extends Controller
     public function show(LeaveRequest $leave_request)
     {
         $leaveRequest = $leave_request->load(['user', 'approver']);
+
         return view('admin.leave-requests.show', compact('leaveRequest'));
     }
 
@@ -67,12 +68,19 @@ class LeaveRequestController extends Controller
                 'total_days' => 0,
                 'used_days' => 0,
                 'remaining_days' => 0,
+                'total_hours' => 0,
+                'used_hours' => 0,
+                'remaining_hours' => 0,
             ]
         );
 
-        $balance->increment('used_days', $leaveRequest->days_requested);
-        $balance->decrement('remaining_days', $leaveRequest->days_requested);
-        $balance->save();
+        if ($leaveRequest->hours_requested) {
+            $balance->increment('used_hours', $leaveRequest->hours_requested);
+            $balance->decrement('remaining_hours', $leaveRequest->hours_requested);
+        } else {
+            $balance->increment('used_days', $leaveRequest->days_requested);
+            $balance->decrement('remaining_days', $leaveRequest->days_requested);
+        }
 
         return redirect()->route('admin.leave-requests.index')
             ->with('success', 'Leave request approved successfully.');

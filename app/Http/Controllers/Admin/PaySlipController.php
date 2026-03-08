@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StorePaySlipRequest;
 use App\Models\PaySlip;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,16 +39,9 @@ class PaySlipController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePaySlipRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
-            'month' => ['required', 'integer', 'min:1', 'max:12'],
-            'year' => ['required', 'integer', 'min:2000', 'max:2100'],
-            'gross_salary' => ['required', 'numeric', 'min:0'],
-            'deductions' => ['nullable', 'numeric', 'min:0'],
-            'file' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
-        ]);
+        $validated = $request->validated();
 
         // Auto-calculate net salary
         $grossSalary = $validated['gross_salary'];
@@ -89,6 +82,7 @@ class PaySlipController extends Controller
     public function show(PaySlip $pay_slip)
     {
         $paySlip = $pay_slip->load(['user', 'creator']);
+
         return view('admin.pay-slips.show', compact('paySlip'));
     }
 
@@ -98,8 +92,8 @@ class PaySlipController extends Controller
     public function download(string $pay_slip)
     {
         $paySlip = PaySlip::with('user')->findOrFail($pay_slip);
-        
-        if (!$paySlip->file_path || !Storage::disk('local')->exists($paySlip->file_path)) {
+
+        if (! $paySlip->file_path || ! Storage::disk('local')->exists($paySlip->file_path)) {
             abort(404, 'Pay slip file not found.');
         }
 
@@ -107,7 +101,7 @@ class PaySlipController extends Controller
         $fileName = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $fileName);
 
         $filePath = Storage::disk('local')->path($paySlip->file_path);
-        
+
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/pdf',
         ]);
@@ -119,7 +113,7 @@ class PaySlipController extends Controller
     public function destroy(PaySlip $pay_slip)
     {
         $paySlip = $pay_slip;
-        
+
         if ($paySlip->file_path && Storage::disk('local')->exists($paySlip->file_path)) {
             Storage::disk('local')->delete($paySlip->file_path);
         }

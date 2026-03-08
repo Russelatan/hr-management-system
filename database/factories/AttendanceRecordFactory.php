@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\AttendanceRecord;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -65,6 +64,18 @@ class AttendanceRecordFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'absent',
             'check_in_time' => null,
+            'check_out_time' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the attendance is a half day.
+     */
+    public function halfDay(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'half_day',
+            'check_in_time' => fake()->time('H:i', '08:30'),
             'check_out_time' => null,
         ]);
     }

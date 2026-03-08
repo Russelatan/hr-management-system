@@ -21,7 +21,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-6">
+            <form method="POST" action="{{ route('admin.register') }}" class="space-y-6">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

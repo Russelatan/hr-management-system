@@ -30,7 +30,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'role' => 'employee',
-            'employee_id' => 'EMP' . str_pad(fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'employee_id' => 'EMP'.str_pad(fake()->unique()->numberBetween(1, 999999), 6, '0', STR_PAD_LEFT),
             'phone' => fake()->phoneNumber(),
             'address' => fake()->address(),
             'date_of_birth' => fake()->date('Y-m-d', '-25 years'),

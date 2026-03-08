@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreAttendanceRequest;
+use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use App\Models\AttendanceRecord;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
@@ -52,16 +53,9 @@ class AttendanceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAttendanceRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
-            'date' => ['required', 'date'],
-            'check_in_time' => ['nullable', 'date_format:H:i'],
-            'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],
-            'status' => ['required', 'in:present,absent,late,half_day'],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         AttendanceRecord::updateOrCreate(
             [
@@ -86,22 +80,18 @@ class AttendanceController extends Controller
     public function edit(AttendanceRecord $attendance)
     {
         $attendanceRecord = $attendance->load('user');
+
         return view('admin.attendance.edit', compact('attendanceRecord'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, AttendanceRecord $attendance)
+    public function update(UpdateAttendanceRequest $request, AttendanceRecord $attendance): \Illuminate\Http\RedirectResponse
     {
         $attendanceRecord = $attendance;
 
-        $validated = $request->validate([
-            'check_in_time' => ['nullable', 'date_format:H:i'],
-            'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],
-            'status' => ['required', 'in:present,absent,late,half_day'],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         $attendanceRecord->update([
             'check_in_time' => $validated['check_in_time'] ?? null,

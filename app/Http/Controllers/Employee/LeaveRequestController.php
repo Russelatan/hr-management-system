@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\LeaveRequest;
+use App\Http\Requests\Employee\StoreLeaveRequest;
 use App\Models\LeaveBalance;
-use Illuminate\Http\Request;
+use App\Models\LeaveRequest;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 
 class LeaveRequestController extends Controller
 {
@@ -44,22 +44,9 @@ class LeaveRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLeaveRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'leave_type' => ['required', 'in:sick,vacation,personal,other,maternity-leave,paternity-leave,bereavement-leave'],
-            'start_date' => ['required', 'date', 'after_or_equal:today'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'hours_requested' => ['nullable', 'integer', 'min:1', 'max:8'],
-            'reason' => ['nullable', 'string', 'max:500'],
-            'document' => [
-                'required_if:leave_type,maternity-leave',
-                'nullable',
-                'file',
-                'mimes:pdf,jpg,jpeg,png',
-                'max:5120',
-            ],
-        ]);
+        $validated = $request->validated();
 
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = Carbon::parse($validated['end_date']);
@@ -95,7 +82,7 @@ class LeaveRequestController extends Controller
         $documentPath = null;
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
             $documentPath = $file->storeAs('leave-documents', $filename, 'local');
         }
 
@@ -126,6 +113,7 @@ class LeaveRequestController extends Controller
         }
 
         $leaveRequest = $leave_request->load('approver');
+
         return view('employee.leave.show', compact('leaveRequest'));
     }
 

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreEmployeeRequest;
+use App\Http\Requests\Admin\UpdateEmployeeRequest;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class EmployeeController extends Controller
 {
@@ -34,20 +34,9 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreEmployeeRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'employee_id' => ['nullable', 'string', 'max:255', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string'],
-            'date_of_birth' => ['nullable', 'date'],
-            'hire_date' => ['nullable', 'date'],
-            'employment_status' => ['nullable', 'in:active,on_leave,terminated,suspended'],
-            'employment_type' => ['nullable', 'in:full-time,part-time,regular'],
-        ]);
+        $validated = $request->validated();
 
         // Auto-generate employee_id if not provided
         $employeeId = $validated['employee_id'] ?? $this->generateEmployeeId($validated['hire_date'] ?? now());
@@ -73,9 +62,8 @@ class EmployeeController extends Controller
     /**
      * Generate a unique employee ID based on hire date.
      * Format: EMP{YYYYMMDD}-{NNN}
-     * 
-     * @param \DateTime|string $hireDate
-     * @return string
+     *
+     * @param  \DateTime|string  $hireDate
      */
     private function generateEmployeeId($hireDate): string
     {
@@ -89,7 +77,7 @@ class EmployeeController extends Controller
         $prefix = "EMP{$datePrefix}-";
 
         // Find existing IDs with the same prefix
-        $existingIds = User::where('employee_id', 'like', $prefix . '%')
+        $existingIds = User::where('employee_id', 'like', $prefix.'%')
             ->whereNotNull('employee_id')
             ->pluck('employee_id')
             ->toArray();
@@ -97,26 +85,26 @@ class EmployeeController extends Controller
         // Extract sequence numbers
         $sequences = [];
         foreach ($existingIds as $id) {
-            if (preg_match('/' . preg_quote($prefix, '/') . '(\d+)$/', $id, $matches)) {
+            if (preg_match('/'.preg_quote($prefix, '/').'(\d+)$/', $id, $matches)) {
                 $sequences[] = (int) $matches[1];
             }
         }
 
         // Find next available sequence number
         $nextSequence = 1;
-        if (!empty($sequences)) {
+        if (! empty($sequences)) {
             $maxSequence = max($sequences);
             $nextSequence = $maxSequence + 1;
         }
 
         // Generate ID with 3-digit sequence
-        $employeeId = $prefix . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+        $employeeId = $prefix.str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
 
         // Ensure uniqueness (handle race conditions)
         $attempts = 0;
         while (User::where('employee_id', $employeeId)->exists() && $attempts < 10) {
             $nextSequence++;
-            $employeeId = $prefix . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+            $employeeId = $prefix.str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
             $attempts++;
         }
 
@@ -129,7 +117,7 @@ class EmployeeController extends Controller
     public function show(string $employee)
     {
         $employee = User::where('role', 'employee')->findOrFail($employee);
-        
+
         $paySlips = $employee->paySlips()->latest()->limit(5)->get();
         $leaveRequests = $employee->leaveRequests()->latest()->limit(5)->get();
         $attendanceRecords = $employee->attendanceRecords()->latest()->limit(10)->get();
@@ -143,28 +131,18 @@ class EmployeeController extends Controller
     public function edit(string $employee)
     {
         $employee = User::where('role', 'employee')->findOrFail($employee);
+
         return view('admin.employees.edit', compact('employee'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $employee)
+    public function update(UpdateEmployeeRequest $request, string $employee): \Illuminate\Http\RedirectResponse
     {
         $employee = User::where('role', 'employee')->findOrFail($employee);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $employee->id],
-            'password' => ['nullable', 'confirmed', Password::defaults()],
-            // employee_id is not validated in update - it's read-only
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string'],
-            'date_of_birth' => ['nullable', 'date'],
-            'hire_date' => ['nullable', 'date'],
-            'employment_status' => ['required', 'in:active,on_leave,terminated,suspended'],
-            'employment_type' => ['nullable', 'in:full-time,part-time,regular'],
-        ]);
+        $validated = $request->validated();
 
         $updateData = [
             'name' => $validated['name'],
@@ -178,7 +156,7 @@ class EmployeeController extends Controller
             'employment_type' => $validated['employment_type'] ?? null,
         ];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
         }
 

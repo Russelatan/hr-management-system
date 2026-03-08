@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\Employee\UpdateProfileRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -17,24 +15,19 @@ class ProfileController extends Controller
     public function index()
     {
         $user = Auth::user();
+
         return view('employee.profile.index', compact('user'));
     }
 
     /**
      * Update the user's profile.
      */
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request): \Illuminate\Http\RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string'],
-            'password' => ['nullable', 'confirmed', Password::defaults()],
-        ]);
+        $validated = $request->validated();
 
         $updateData = [
             'name' => $validated['name'],
@@ -43,7 +36,7 @@ class ProfileController extends Controller
             'address' => $validated['address'] ?? null,
         ];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
         }
 
