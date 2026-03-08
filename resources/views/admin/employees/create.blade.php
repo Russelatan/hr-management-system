@@ -3,96 +3,42 @@
 @section('title', 'Create Employee')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Create New Employee</h1>
+    <x-page-header title="Create New Employee">
+        <x-slot:actions>
+            <x-button variant="secondary" :href="route('admin.employees.index')">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
-        <form method="POST" action="{{ route('admin.employees.store') }}" class="bg-white shadow-sm rounded-lg p-6">
+    <x-card>
+        <form method="POST" action="{{ route('admin.employees.store') }}" class="space-y-6">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Full Name *</label>
-                    <input type="text" name="name" id="name" required value="{{ old('name') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <x-form-input label="Full Name" name="name" :required="true" />
+                <x-form-input label="Email" name="email" type="email" :required="true" />
+                <x-form-input label="Password" name="password" type="password" :required="true" />
+                <x-form-input label="Confirm Password" name="password_confirmation" type="password" :required="true" />
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
-                    <input type="email" name="email" id="email" required value="{{ old('email') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <x-form-input label="Hire Date" name="hire_date" type="date" />
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Employee ID will be auto-generated based on hire date</p>
                 </div>
 
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
-                    <input type="password" name="password" id="password" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password *</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
-                    <input type="date" name="hire_date" id="hire_date" value="{{ old('hire_date') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <p class="mt-1 text-sm text-gray-500">Employee ID will be auto-generated based on hire date (format: EMPYYYYMMDD-NNN)</p>
-                </div>
-
-                <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                    <input type="date" name="date_of_birth" id="date_of_birth" value="{{ old('date_of_birth') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-
-                <div>
-                    <label for="employment_status" class="block text-sm font-medium text-gray-700">Employment Status</label>
-                    <select name="employment_status" id="employment_status"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="active" {{ old('employment_status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="on_leave" {{ old('employment_status') == 'on_leave' ? 'selected' : '' }}>On Leave</option>
-                        <option value="terminated" {{ old('employment_status') == 'terminated' ? 'selected' : '' }}>Terminated</option>
-                        <option value="suspended" {{ old('employment_status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="employment_type" class="block text-sm font-medium text-gray-700">Employment Type</label>
-                    <select name="employment_type" id="employment_type" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">Select Employment Type</option>
-                        <option value="full-time" {{ old('employment_type') == 'full-time' ? 'selected' : '' }}>Full-Time</option>
-                        <option value="part-time" {{ old('employment_type') == 'part-time' ? 'selected' : '' }}>Part-Time</option>
-                        <option value="regular" {{ old('employment_type') == 'regular' ? 'selected' : '' }}>Regular</option>
-                    </select>
-                </div>
+                <x-form-input label="Phone" name="phone" />
+                <x-form-input label="Date of Birth" name="date_of_birth" type="date" />
+                <x-form-select label="Employment Status" name="employment_status" :options="['active' => 'Active', 'on_leave' => 'On Leave', 'terminated' => 'Terminated', 'suspended' => 'Suspended']" :selected="old('employment_status', 'active')" />
+                <x-form-select label="Employment Type" name="employment_type" :required="true" :options="['full-time' => 'Full-Time', 'part-time' => 'Part-Time', 'regular' => 'Regular']" />
             </div>
 
-            <div class="mt-6">
-                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                <textarea name="address" id="address" rows="3"
-                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('address') }}</textarea>
-            </div>
+            <x-form-textarea label="Address" name="address" />
 
-            <div class="mt-6 flex items-center justify-end gap-x-3">
-                <a href="{{ route('admin.employees.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                    Cancel
-                </a>
-                <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                    Create Employee
-                </button>
+            <div class="flex items-center justify-end gap-3">
+                <x-button variant="secondary" :href="route('admin.employees.index')" type="button">Cancel</x-button>
+                <x-button variant="primary">Create Employee</x-button>
             </div>
         </form>
-    </div>
-</div>
+    </x-card>
 @endsection

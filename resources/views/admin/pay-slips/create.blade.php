@@ -3,122 +3,79 @@
 @section('title', 'Upload Pay Slip')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Upload Pay Slip</h1>
+    <x-page-header title="Upload Pay Slip">
+        <x-slot:actions>
+            <x-button variant="secondary" :href="route('admin.pay-slips.index')">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
-        <form method="POST" action="{{ route('admin.pay-slips.store') }}" enctype="multipart/form-data" class="bg-white shadow-sm rounded-lg p-6">
+    <x-card>
+        <form method="POST" action="{{ route('admin.pay-slips.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="paySlipForm()">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <x-form-select label="Employee" name="user_id" :required="true">
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('user_id') == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }} ({{ $employee->email }})
+                        </option>
+                    @endforeach
+                </x-form-select>
+
+                <x-form-select label="Month" name="month" :required="true">
+                    @for($i = 1; $i <= 12; $i++)
+                        <option value="{{ $i }}" {{ old('month', now()->month) == $i ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $i, 1)) }}
+                        </option>
+                    @endfor
+                </x-form-select>
+
+                <x-form-input label="Year" name="year" type="number" :required="true" :value="old('year', now()->year)" />
+
                 <div>
-                    <label for="user_id" class="block text-sm font-medium text-gray-700">Employee *</label>
-                    <select name="user_id" id="user_id" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">Select Employee</option>
-                        @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}" {{ old('user_id') == $employee->id ? 'selected' : '' }}>
-                                {{ $employee->name }} ({{ $employee->email }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-form-input label="Gross Salary" name="gross_salary" type="number" :required="true" x-model="gross" />
                 </div>
 
                 <div>
-                    <label for="month" class="block text-sm font-medium text-gray-700">Month *</label>
-                    <select name="month" id="month" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        @for($i = 1; $i <= 12; $i++)
-                            <option value="{{ $i }}" {{ old('month', now()->month) == $i ? 'selected' : '' }}>
-                                {{ date('F', mktime(0, 0, 0, $i, 1)) }}
-                            </option>
-                        @endfor
-                    </select>
+                    <x-form-input label="Deductions" name="deductions" type="number" :value="old('deductions', 0)" x-model="deductions" />
                 </div>
 
                 <div>
-                    <label for="year" class="block text-sm font-medium text-gray-700">Year *</label>
-                    <input type="number" name="year" id="year" required min="2000" max="2100" value="{{ old('year', now()->year) }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="gross_salary" class="block text-sm font-medium text-gray-700">Gross Salary *</label>
-                    <input type="number" name="gross_salary" id="gross_salary" required step="0.01" min="0" value="{{ old('gross_salary') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="deductions" class="block text-sm font-medium text-gray-700">Deductions</label>
-                    <input type="number" name="deductions" id="deductions" step="0.01" min="0" value="{{ old('deductions', 0) }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="net_salary_display" class="block text-sm font-medium text-gray-700">Net Salary</label>
-                    <div id="net_salary_display" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900">
-                        ₱0.00
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Net Salary</label>
+                    <div class="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-semibold dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" :class="net < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'">
+                        ₱<span x-text="netFormatted"></span>
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Calculated automatically: Gross Salary - Deductions</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Calculated automatically: Gross Salary - Deductions</p>
                 </div>
 
                 <div class="md:col-span-2">
-                    <label for="file" class="block text-sm font-medium text-gray-700">Pay Slip PDF (Optional)</label>
+                    <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pay Slip PDF (Optional)</label>
                     <input type="file" name="file" id="file" accept=".pdf"
-                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    <p class="mt-1 text-xs text-gray-500">Maximum file size: 10MB</p>
+                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-indigo-900/30 dark:file:text-indigo-400">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maximum file size: 10MB</p>
                 </div>
             </div>
 
-            <div class="mt-6 flex items-center justify-end gap-x-3">
-                <a href="{{ route('admin.pay-slips.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                    Cancel
-                </a>
-                <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                    Upload Pay Slip
-                </button>
+            <div class="flex items-center justify-end gap-3">
+                <x-button variant="secondary" :href="route('admin.pay-slips.index')" type="button">Cancel</x-button>
+                <x-button variant="primary">Upload Pay Slip</x-button>
             </div>
         </form>
-    </div>
-</div>
+    </x-card>
+@endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const grossInput = document.getElementById('gross_salary');
-        const deductionsInput = document.getElementById('deductions');
-        const netDisplay = document.getElementById('net_salary_display');
-
-        function calculateNet() {
-            const gross = parseFloat(grossInput.value) || 0;
-            const deductions = parseFloat(deductionsInput.value) || 0;
-            const net = Math.max(0, gross - deductions); // Ensure non-negative
-            
-            // Format with peso symbol and 2 decimal places
-            const formatted = '₱' + net.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            
-            netDisplay.textContent = formatted;
-            
-            // Visual feedback if deductions exceed gross
-            if (deductions > gross) {
-                netDisplay.classList.remove('text-gray-900');
-                netDisplay.classList.add('text-red-600');
-            } else {
-                netDisplay.classList.remove('text-red-600');
-                netDisplay.classList.add('text-gray-900');
-            }
+    function paySlipForm() {
+        return {
+            gross: {{ old('gross_salary', 0) }},
+            deductions: {{ old('deductions', 0) }},
+            get net() { return Math.max(0, (parseFloat(this.gross) || 0) - (parseFloat(this.deductions) || 0)); },
+            get netFormatted() { return this.net.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
         }
-
-        // Calculate on input
-        grossInput.addEventListener('input', calculateNet);
-        deductionsInput.addEventListener('input', calculateNet);
-        
-        // Calculate on page load if old values exist
-        calculateNet();
-    });
+    }
 </script>
 @endpush
-@endsection

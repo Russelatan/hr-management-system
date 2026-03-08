@@ -3,93 +3,74 @@
 @section('title', 'My Leave Requests')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">My Leave Requests</h1>
-            <p class="mt-2 text-sm text-gray-700">View and manage your leave requests</p>
-        </div>
-        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <a href="{{ route('employee.leave.create') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+    <x-page-header title="My Leave Requests" description="View and manage your leave requests">
+        <x-slot:actions>
+            <x-button variant="primary" :href="route('employee.leave.create')">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                 Request Leave
-            </a>
-        </div>
-    </div>
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     @if($leaveBalances->count() > 0)
-        <div class="mt-6 bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Leave Balances</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <x-card class="mb-6">
+            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Leave Balances</h3>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 @foreach($leaveBalances as $balance)
                     <div>
-                        <div class="text-sm text-gray-500">{{ ucfirst(str_replace('-', ' ', $balance->leave_type)) }}</div>
-                        <div class="text-2xl font-semibold text-gray-900">{{ $balance->remaining_days }}</div>
-                        <div class="text-xs text-gray-500">of {{ $balance->total_days }} days</div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ucfirst(str_replace('-', ' ', $balance->leave_type)) }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $balance->remaining_days }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">of {{ $balance->total_days }} days</p>
                         @if($balance->hasHoursSupport())
-                            <div class="text-sm text-gray-600 mt-1">{{ $balance->remaining_hours }} hrs</div>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $balance->remaining_hours }} hrs</p>
                         @endif
                     </div>
                 @endforeach
             </div>
-        </div>
+        </x-card>
     @endif
 
-    <div class="mt-8 flow-root">
-        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-300">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Leave Type</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Start Date</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">End Date</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Duration</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                                <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Doc</th>
-                                <th class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            @forelse($leaveRequests as $request)
-                                <tr>
-                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ ucfirst($request->leave_type) }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->start_date->format('M d, Y') }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->end_date->format('M d, Y') }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $request->days_requested }}</td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($request->status === 'approved') bg-green-100 text-green-800
-                                            @elseif($request->status === 'rejected') bg-red-100 text-red-800
-                                            @else bg-yellow-100 text-yellow-800
-                                            @endif">
-                                            {{ ucfirst($request->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                        @if($request->hasDocument())
-                                            <span class="text-green-600" title="Document attached">&#128196;</span>
-                                        @else
-                                            <span class="text-gray-400">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                        <a href="{{ route('employee.leave.show', $request) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No leave requests found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-4">
-                    {{ $leaveRequests->links() }}
-                </div>
-            </div>
-        </div>
+    <x-data-table>
+        <x-slot:head>
+            <th class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 sm:pl-6">Type</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Start</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">End</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Doc</th>
+            <th class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Actions</span></th>
+        </x-slot:head>
+
+        @forelse($leaveRequests as $request)
+            <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-100 sm:pl-6">{{ ucfirst($request->leave_type) }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->start_date->format('M d, Y') }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->end_date->format('M d, Y') }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->days_requested }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm"><x-status-badge :status="$request->status" /></td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    @if($request->hasDocument())
+                        <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    @else
+                        <span class="text-gray-400 dark:text-gray-500">&mdash;</span>
+                    @endif
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm sm:pr-6">
+                    <a href="{{ route('employee.leave.show', $request) }}" class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-gray-700 dark:hover:text-indigo-400" title="View">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </a>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7">
+                    <x-empty-state message="No leave requests found" icon='<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />' />
+                </td>
+            </tr>
+        @endforelse
+    </x-data-table>
+
+    <div class="mt-4">
+        {{ $leaveRequests->links() }}
     </div>
-</div>
 @endsection

@@ -3,72 +3,40 @@
 @section('title', 'Add Attendance Record')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Add Attendance Record</h1>
+    <x-page-header title="Add Attendance Record">
+        <x-slot:actions>
+            <x-button variant="secondary" :href="route('admin.attendance.index')">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back
+            </x-button>
+        </x-slot:actions>
+    </x-page-header>
 
-        <form method="POST" action="{{ route('admin.attendance.store') }}" class="bg-white shadow-sm rounded-lg p-6">
+    <x-card>
+        <form method="POST" action="{{ route('admin.attendance.store') }}" class="space-y-6">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="user_id" class="block text-sm font-medium text-gray-700">Employee *</label>
-                    <select name="user_id" id="user_id" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">Select Employee</option>
-                        @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}" {{ old('user_id') == $employee->id ? 'selected' : '' }}>
-                                {{ $employee->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <x-form-select label="Employee" name="user_id" :required="true">
+                    @foreach($employees as $employee)
+                        <option value="{{ $employee->id }}" {{ old('user_id') == $employee->id ? 'selected' : '' }}>
+                            {{ $employee->name }}
+                        </option>
+                    @endforeach
+                </x-form-select>
 
-                <div>
-                    <label for="date" class="block text-sm font-medium text-gray-700">Date *</label>
-                    <input type="date" name="date" id="date" required value="{{ old('date', now()->format('Y-m-d')) }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="check_in_time" class="block text-sm font-medium text-gray-700">Check In Time</label>
-                    <input type="time" name="check_in_time" id="check_in_time" value="{{ old('check_in_time') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="check_out_time" class="block text-sm font-medium text-gray-700">Check Out Time</label>
-                    <input type="time" name="check_out_time" id="check_out_time" value="{{ old('check_out_time') }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-
-                <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700">Status *</label>
-                    <select name="status" id="status" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="present" {{ old('status') == 'present' ? 'selected' : '' }}>Present</option>
-                        <option value="absent" {{ old('status') == 'absent' ? 'selected' : '' }}>Absent</option>
-                        <option value="late" {{ old('status') == 'late' ? 'selected' : '' }}>Late</option>
-                        <option value="half_day" {{ old('status') == 'half_day' ? 'selected' : '' }}>Half Day</option>
-                    </select>
-                </div>
+                <x-form-input label="Date" name="date" type="date" :required="true" :value="old('date', now()->format('Y-m-d'))" />
+                <x-form-input label="Check In Time" name="check_in_time" type="time" />
+                <x-form-input label="Check Out Time" name="check_out_time" type="time" />
+                <x-form-select label="Status" name="status" :required="true" :options="['present' => 'Present', 'absent' => 'Absent', 'late' => 'Late', 'half_day' => 'Half Day']" />
             </div>
 
-            <div class="mt-6">
-                <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                <textarea name="notes" id="notes" rows="3"
-                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('notes') }}</textarea>
-            </div>
+            <x-form-textarea label="Notes" name="notes" />
 
-            <div class="mt-6 flex items-center justify-end gap-x-3">
-                <a href="{{ route('admin.attendance.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                    Cancel
-                </a>
-                <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                    Add Record
-                </button>
+            <div class="flex items-center justify-end gap-3">
+                <x-button variant="secondary" :href="route('admin.attendance.index')" type="button">Cancel</x-button>
+                <x-button variant="primary">Add Record</x-button>
             </div>
         </form>
-    </div>
-</div>
+    </x-card>
 @endsection
