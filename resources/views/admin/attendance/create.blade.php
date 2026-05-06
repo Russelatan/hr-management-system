@@ -26,9 +26,24 @@
                 </x-form-select>
 
                 <x-form-input label="Date" name="date" type="date" :required="true" :value="old('date', now()->format('Y-m-d'))" />
-                <x-form-input label="Check In Time" name="check_in_time" type="time" />
-                <x-form-input label="Check Out Time" name="check_out_time" type="time" />
-                <x-form-select label="Status" name="status" :required="true" :options="['present' => 'Present', 'absent' => 'Absent', 'late' => 'Late', 'half_day' => 'Half Day']" />
+
+                <x-form-select label="Status" name="status" :required="true" :options="['present' => 'Present', 'absent' => 'Absent', 'late' => 'Late', 'half_day' => 'Half Day']" :selected="old('status', 'present')" />
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Morning Session</h3>
+                <div class="mt-3 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <x-form-input label="Morning In" name="morning_in" type="time" :value="old('morning_in')" />
+                    <x-form-input label="Morning Out" name="morning_out" type="time" :value="old('morning_out')" />
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Afternoon Session</h3>
+                <div class="mt-3 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <x-form-input label="Afternoon In" name="afternoon_in" type="time" :value="old('afternoon_in')" />
+                    <x-form-input label="Afternoon Out" name="afternoon_out" type="time" :value="old('afternoon_out')" />
+                </div>
             </div>
 
             <x-form-textarea label="Notes" name="notes" />

@@ -60,14 +60,14 @@ it('deducts absent days from gross salary', function () {
         ->and($result['net_salary'])->toBe($expectedNet);
 });
 
-it('does not count non-absent statuses as absent', function () {
+it('does not count present or late statuses as absent or half_day', function () {
     AttendanceRecord::factory()->create(['user_id' => $this->employee->id, 'date' => '2026-03-01', 'status' => 'present']);
     AttendanceRecord::factory()->create(['user_id' => $this->employee->id, 'date' => '2026-03-02', 'status' => 'late']);
-    AttendanceRecord::factory()->create(['user_id' => $this->employee->id, 'date' => '2026-03-03', 'status' => 'half_day']);
 
     $result = $this->service->compute($this->employee, 3, 2026);
 
     expect($result['absent_days'])->toBe(0)
+        ->and($result['half_days'])->toBe(0)
         ->and($result['gross_salary'])->toBe(50000.0);
 });
 
@@ -103,6 +103,8 @@ it('returns correct computation keys', function () {
         'total_attendance_records',
         'absent_days',
         'absent_deduction',
+        'half_days',
+        'half_day_deduction',
         'gross_salary',
         'sss_contribution',
         'philhealth_contribution',
@@ -111,6 +113,54 @@ it('returns correct computation keys', function () {
         'total_deductions',
         'net_salary',
     ]);
+});
+
+it('deducts 0.5 x daily rate for each half_day record', function () {
+    AttendanceRecord::factory()->create([
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-05',
+        'status' => 'half_day',
+    ]);
+
+    AttendanceRecord::factory()->create([
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-06',
+        'status' => 'half_day',
+    ]);
+
+    $result = $this->service->compute($this->employee, 3, 2026);
+
+    $expectedHalfDayDeduction = round(2 * (50000 / 22) * 0.5, 2);
+    $expectedGross = round(50000 - $expectedHalfDayDeduction, 2);
+
+    expect($result['half_days'])->toBe(2)
+        ->and($result['half_day_deduction'])->toBe($expectedHalfDayDeduction)
+        ->and($result['gross_salary'])->toBe($expectedGross);
+});
+
+it('deducts both absent and half_day records independently', function () {
+    AttendanceRecord::factory()->create([
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-05',
+        'status' => 'absent',
+    ]);
+
+    AttendanceRecord::factory()->create([
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-06',
+        'status' => 'half_day',
+    ]);
+
+    $result = $this->service->compute($this->employee, 3, 2026);
+
+    $dailyRate = 50000 / 22;
+    $expectedAbsentDeduction = round(1 * $dailyRate, 2);
+    $expectedHalfDayDeduction = round(1 * $dailyRate * 0.5, 2);
+    $expectedGross = round(50000 - $expectedAbsentDeduction - $expectedHalfDayDeduction, 2);
+
+    expect($result['absent_days'])->toBe(1)
+        ->and($result['half_days'])->toBe(1)
+        ->and($result['gross_salary'])->toBe($expectedGross);
 });
 
 it('net salary is never negative', function () {

@@ -26,20 +26,41 @@ it('shows the create attendance form', function () {
         ->assertOk();
 });
 
-it('creates an attendance record', function () {
+it('creates an attendance record with morning and afternoon session times', function () {
     $this->actingAs($this->admin)->post(route('admin.attendance.store'), [
         'user_id' => $this->employee->id,
         'date' => '2026-03-08',
-        'check_in_time' => '08:30',
-        'check_out_time' => '17:30',
+        'morning_in' => '08:00',
+        'morning_out' => '12:00',
+        'afternoon_in' => '13:00',
+        'afternoon_out' => '17:00',
         'status' => 'present',
     ])->assertRedirect(route('admin.attendance.index'));
 
     $this->assertDatabaseHas('attendance_records', [
         'user_id' => $this->employee->id,
         'date' => '2026-03-08',
+        'morning_in' => '08:00',
+        'morning_out' => '12:00',
+        'afternoon_in' => '13:00',
+        'afternoon_out' => '17:00',
         'status' => 'present',
     ]);
+});
+
+it('creates a half-day record with only morning session times', function () {
+    $this->actingAs($this->admin)->post(route('admin.attendance.store'), [
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-08',
+        'morning_in' => '08:00',
+        'morning_out' => '12:00',
+        'status' => 'half_day',
+    ])->assertRedirect(route('admin.attendance.index'));
+
+    $record = AttendanceRecord::where('user_id', $this->employee->id)->where('date', '2026-03-08')->first();
+    expect($record->status)->toBe('half_day')
+        ->and($record->morning_in)->toStartWith('08:00')
+        ->and($record->afternoon_in)->toBeNull();
 });
 
 it('upserts on duplicate user+date', function () {
@@ -67,6 +88,26 @@ it('rejects an invalid status', function () {
     ])->assertSessionHasErrors('status');
 });
 
+it('rejects morning_out before morning_in', function () {
+    $this->actingAs($this->admin)->post(route('admin.attendance.store'), [
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-08',
+        'morning_in' => '12:00',
+        'morning_out' => '08:00',
+        'status' => 'present',
+    ])->assertSessionHasErrors('morning_out');
+});
+
+it('rejects afternoon_out before afternoon_in', function () {
+    $this->actingAs($this->admin)->post(route('admin.attendance.store'), [
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-08',
+        'afternoon_in' => '17:00',
+        'afternoon_out' => '13:00',
+        'status' => 'present',
+    ])->assertSessionHasErrors('afternoon_out');
+});
+
 it('shows the edit attendance form', function () {
     $record = AttendanceRecord::factory()->create(['user_id' => $this->employee->id]);
 
@@ -75,16 +116,19 @@ it('shows the edit attendance form', function () {
         ->assertOk();
 });
 
-it('updates an attendance record', function () {
+it('updates an attendance record with new session times', function () {
     $record = AttendanceRecord::factory()->present()->create(['user_id' => $this->employee->id]);
 
     $this->actingAs($this->admin)->put(route('admin.attendance.update', $record), [
         'status' => 'late',
-        'check_in_time' => '09:15',
-        'check_out_time' => '17:30',
+        'morning_in' => '09:15',
+        'morning_out' => '12:00',
+        'afternoon_in' => '13:00',
+        'afternoon_out' => '17:00',
     ])->assertRedirect(route('admin.attendance.index'));
 
-    expect($record->fresh()->status)->toBe('late');
+    expect($record->fresh()->status)->toBe('late')
+        ->and($record->fresh()->morning_in)->toStartWith('09:15');
 });
 
 it('deletes an attendance record', function () {

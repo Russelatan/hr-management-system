@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AttendanceRecord extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'date',
-        'check_in_time',
-        'check_out_time',
+        'morning_in',
+        'morning_out',
+        'afternoon_in',
+        'afternoon_out',
         'status',
         'notes',
     ];

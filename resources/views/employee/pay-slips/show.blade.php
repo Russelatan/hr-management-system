@@ -56,6 +56,16 @@
                         <span class="text-sm font-medium text-red-600 dark:text-red-400">− ₱{{ number_format($notes['absent_deduction'], 2) }}</span>
                     </div>
 
+                    @if(isset($notes['half_days']) && $notes['half_days'] > 0)
+                        <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                Half-Day Deduction
+                                <span class="ml-1 text-xs text-gray-400 dark:text-gray-500">({{ $notes['half_days'] }} half-day(s))</span>
+                            </span>
+                            <span class="text-sm font-medium text-red-600 dark:text-red-400">− ₱{{ number_format($notes['half_day_deduction'], 2) }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between border-b border-gray-200 pb-3 dark:border-gray-600">
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Gross Salary</span>
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">₱{{ number_format($notes['gross_salary'], 2) }}</span>

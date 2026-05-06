@@ -63,8 +63,10 @@ class AttendanceController extends Controller
                 'date' => $validated['date'],
             ],
             [
-                'check_in_time' => $validated['check_in_time'] ?? null,
-                'check_out_time' => $validated['check_out_time'] ?? null,
+                'morning_in' => $validated['morning_in'] ?? null,
+                'morning_out' => $validated['morning_out'] ?? null,
+                'afternoon_in' => $validated['afternoon_in'] ?? null,
+                'afternoon_out' => $validated['afternoon_out'] ?? null,
                 'status' => $validated['status'],
                 'notes' => $validated['notes'] ?? null,
             ]
@@ -94,8 +96,10 @@ class AttendanceController extends Controller
         $validated = $request->validated();
 
         $attendanceRecord->update([
-            'check_in_time' => $validated['check_in_time'] ?? null,
-            'check_out_time' => $validated['check_out_time'] ?? null,
+            'morning_in' => $validated['morning_in'] ?? null,
+            'morning_out' => $validated['morning_out'] ?? null,
+            'afternoon_in' => $validated['afternoon_in'] ?? null,
+            'afternoon_out' => $validated['afternoon_out'] ?? null,
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,
         ]);

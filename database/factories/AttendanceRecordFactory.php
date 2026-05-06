@@ -18,65 +18,73 @@ class AttendanceRecordFactory extends Factory
     public function definition(): array
     {
         $date = fake()->dateTimeBetween('-3 months', 'now');
-        $checkIn = fake()->time('H:i', '09:00');
-        $checkOut = fake()->time('H:i', '17:00');
-        $status = fake()->randomElement(['present', 'present', 'present', 'late', 'half_day']); // Mostly present
+        $status = fake()->randomElement(['present', 'present', 'present', 'late', 'half_day']);
 
         return [
             'user_id' => User::factory()->employee(),
             'date' => $date,
-            'check_in_time' => $checkIn,
-            'check_out_time' => $status === 'half_day' ? null : $checkOut,
+            'morning_in' => '08:00',
+            'morning_out' => '12:00',
+            'afternoon_in' => $status === 'half_day' ? null : '13:00',
+            'afternoon_out' => $status === 'half_day' ? null : '17:00',
             'status' => $status,
             'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 
     /**
-     * Indicate that the attendance is present.
+     * Indicate that the attendance is present (full day).
      */
     public function present(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'present',
-            'check_in_time' => fake()->time('H:i', '08:30'),
-            'check_out_time' => fake()->time('H:i', '17:30'),
+            'morning_in' => '08:00',
+            'morning_out' => '12:00',
+            'afternoon_in' => '13:00',
+            'afternoon_out' => '17:00',
         ]);
     }
 
     /**
-     * Indicate that the attendance is late.
+     * Indicate that the attendance is late (full day but late morning in).
      */
     public function late(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'late',
-            'check_in_time' => fake()->time('H:i', '09:30'),
-            'check_out_time' => fake()->time('H:i', '17:30'),
+            'morning_in' => '09:30',
+            'morning_out' => '12:00',
+            'afternoon_in' => '13:00',
+            'afternoon_out' => '17:00',
         ]);
     }
 
     /**
-     * Indicate that the attendance is absent.
+     * Indicate that the attendance is absent (no sessions recorded).
      */
     public function absent(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'absent',
-            'check_in_time' => null,
-            'check_out_time' => null,
+            'morning_in' => null,
+            'morning_out' => null,
+            'afternoon_in' => null,
+            'afternoon_out' => null,
         ]);
     }
 
     /**
-     * Indicate that the attendance is a half day.
+     * Indicate that the attendance is a half day (morning session only).
      */
     public function halfDay(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'half_day',
-            'check_in_time' => fake()->time('H:i', '08:30'),
-            'check_out_time' => null,
+            'morning_in' => '08:00',
+            'morning_out' => '12:00',
+            'afternoon_in' => null,
+            'afternoon_out' => null,
         ]);
     }
 }

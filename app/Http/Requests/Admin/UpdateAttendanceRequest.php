@@ -17,8 +17,10 @@ class UpdateAttendanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'check_in_time' => ['nullable', 'date_format:H:i'],
-            'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],
+            'morning_in' => ['nullable', 'date_format:H:i'],
+            'morning_out' => ['nullable', 'date_format:H:i', 'after:morning_in'],
+            'afternoon_in' => ['nullable', 'date_format:H:i'],
+            'afternoon_out' => ['nullable', 'date_format:H:i', 'after:afternoon_in'],
             'status' => ['required', 'in:present,absent,late,half_day'],
             'notes' => ['nullable', 'string', 'max:500'],
         ];
@@ -30,9 +32,12 @@ class UpdateAttendanceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'check_in_time.date_format' => 'Check-in time must be in HH:MM format.',
-            'check_out_time.date_format' => 'Check-out time must be in HH:MM format.',
-            'check_out_time.after' => 'Check-out time must be after check-in time.',
+            'morning_in.date_format' => 'Morning in time must be in HH:MM format.',
+            'morning_out.date_format' => 'Morning out time must be in HH:MM format.',
+            'morning_out.after' => 'Morning out time must be after morning in time.',
+            'afternoon_in.date_format' => 'Afternoon in time must be in HH:MM format.',
+            'afternoon_out.date_format' => 'Afternoon out time must be in HH:MM format.',
+            'afternoon_out.after' => 'Afternoon out time must be after afternoon in time.',
             'status.required' => 'The attendance status is required.',
             'status.in' => 'The selected status is invalid.',
         ];

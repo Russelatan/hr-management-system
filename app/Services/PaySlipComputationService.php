@@ -18,6 +18,8 @@ class PaySlipComputationService
      *     total_attendance_records: int,
      *     absent_days: int,
      *     absent_deduction: float,
+     *     half_days: int,
+     *     half_day_deduction: float,
      *     gross_salary: float,
      *     sss_contribution: float,
      *     philhealth_contribution: float,
@@ -42,8 +44,10 @@ class PaySlipComputationService
             ->get();
 
         $absentDays = $attendanceRecords->where('status', 'absent')->count();
+        $halfDays = $attendanceRecords->where('status', 'half_day')->count();
         $absentDeduction = round($absentDays * $dailyRate, 2);
-        $grossSalary = round(max(0, $basicSalary - $absentDeduction), 2);
+        $halfDayDeduction = round($halfDays * $dailyRate * 0.5, 2);
+        $grossSalary = round(max(0, $basicSalary - $absentDeduction - $halfDayDeduction), 2);
 
         $sss = round((float) ($employee->sss_contribution ?? 0), 2);
         $philhealth = round((float) ($employee->philhealth_contribution ?? 0), 2);
@@ -59,6 +63,8 @@ class PaySlipComputationService
             'total_attendance_records' => $attendanceRecords->count(),
             'absent_days' => $absentDays,
             'absent_deduction' => $absentDeduction,
+            'half_days' => $halfDays,
+            'half_day_deduction' => $halfDayDeduction,
             'gross_salary' => $grossSalary,
             'sss_contribution' => $sss,
             'philhealth_contribution' => $philhealth,

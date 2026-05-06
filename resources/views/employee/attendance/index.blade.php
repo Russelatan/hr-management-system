@@ -25,8 +25,8 @@
     <x-data-table>
         <x-slot:head>
             <th class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 sm:pl-6">Date</th>
-            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Check In</th>
-            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Check Out</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Morning</th>
+            <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Afternoon</th>
             <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
             <th class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Notes</th>
         </x-slot:head>
@@ -34,8 +34,20 @@
         @forelse($attendanceRecords as $record)
             <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-100 sm:pl-6">{{ $record->date->format('M d, Y') }}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $record->check_in_time ?? 'N/A' }}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $record->check_out_time ?? 'N/A' }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    @if($record->morning_in || $record->morning_out)
+                        {{ $record->morning_in ?? '—' }} – {{ $record->morning_out ?? '—' }}
+                    @else
+                        <span class="text-gray-400 dark:text-gray-600">N/A</span>
+                    @endif
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    @if($record->afternoon_in || $record->afternoon_out)
+                        {{ $record->afternoon_in ?? '—' }} – {{ $record->afternoon_out ?? '—' }}
+                    @else
+                        <span class="text-gray-400 dark:text-gray-600">N/A</span>
+                    @endif
+                </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm"><x-status-badge :status="$record->status" /></td>
                 <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $record->notes ?? 'N/A' }}</td>
             </tr>
