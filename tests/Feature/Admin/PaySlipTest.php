@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AttendanceRecord;
 use App\Models\PaySlip;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,7 +11,14 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->admin = User::factory()->admin()->create();
-    $this->employee = User::factory()->employee()->create();
+    $this->employee = User::factory()->employee()->create([
+        'basic_salary' => 50000.00,
+        'sss_contribution' => 1125.00,
+        'philhealth_contribution' => 625.00,
+        'pagibig_contribution' => 100.00,
+        'other_deductions' => 0.00,
+        'working_days_per_month' => 22,
+    ]);
 });
 
 it('lists pay slips', function () {
@@ -28,36 +36,71 @@ it('shows the create pay slip form', function () {
         ->assertOk();
 });
 
-it('creates a pay slip and calculates net salary', function () {
+it('auto-computes and creates a pay slip from employee salary data', function () {
     $this->actingAs($this->admin)->post(route('admin.pay-slips.store'), [
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 50000,
-        'deductions' => 5000,
     ])->assertRedirect(route('admin.pay-slips.index'));
 
     $this->assertDatabaseHas('pay_slips', [
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 50000,
-        'deductions' => 5000,
-        'net_salary' => 45000,
+        'gross_salary' => 50000.00,
+        'deductions' => 1850.00,
+        'net_salary' => 48150.00,
     ]);
 });
 
-it('rejects deductions exceeding gross salary', function () {
+it('deducts absent days from gross salary during computation', function () {
+    AttendanceRecord::factory()->create([
+        'user_id' => $this->employee->id,
+        'date' => '2026-03-05',
+        'status' => 'absent',
+    ]);
+
     $this->actingAs($this->admin)->post(route('admin.pay-slips.store'), [
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 10000,
-        'deductions' => 15000,
-    ])->assertSessionHasErrors('deductions');
+    ])->assertRedirect(route('admin.pay-slips.index'));
+
+    $paySlip = PaySlip::where('user_id', $this->employee->id)->first();
+    $dailyRate = round(50000 / 22, 2);
+    $expectedGross = round(50000 - $dailyRate, 2);
+
+    expect((float) $paySlip->gross_salary)->toBe($expectedGross)
+        ->and($paySlip->computation_notes['absent_days'])->toBe(1);
 });
 
-it('accepts a PDF file upload', function () {
+it('stores computation notes on the pay slip', function () {
+    $this->actingAs($this->admin)->post(route('admin.pay-slips.store'), [
+        'user_id' => $this->employee->id,
+        'month' => 3,
+        'year' => 2026,
+    ])->assertRedirect();
+
+    $paySlip = PaySlip::where('user_id', $this->employee->id)->first();
+
+    expect($paySlip->computation_notes)->toBeArray()
+        ->toHaveKey('basic_salary')
+        ->toHaveKey('absent_days')
+        ->toHaveKey('gross_salary')
+        ->toHaveKey('net_salary');
+});
+
+it('rejects generating a pay slip for an employee without a basic salary', function () {
+    $employeeWithoutSalary = User::factory()->employeeWithoutSalary()->create();
+
+    $this->actingAs($this->admin)->post(route('admin.pay-slips.store'), [
+        'user_id' => $employeeWithoutSalary->id,
+        'month' => 3,
+        'year' => 2026,
+    ])->assertSessionHasErrors('user_id');
+});
+
+it('accepts a PDF file upload alongside the auto-computed pay slip', function () {
     Storage::fake('local');
 
     $file = UploadedFile::fake()->create('payslip.pdf', 100, 'application/pdf');
@@ -66,8 +109,6 @@ it('accepts a PDF file upload', function () {
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 50000,
-        'deductions' => 0,
         'file' => $file,
     ])->assertRedirect();
 
@@ -83,8 +124,6 @@ it('rejects non-PDF file uploads', function () {
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 50000,
-        'deductions' => 0,
         'file' => $file,
     ])->assertSessionHasErrors('file');
 });
@@ -112,7 +151,6 @@ it('validates required fields on create', function (string $field) {
         'user_id' => $this->employee->id,
         'month' => 3,
         'year' => 2026,
-        'gross_salary' => 50000,
     ];
 
     unset($data[$field]);
@@ -120,4 +158,4 @@ it('validates required fields on create', function (string $field) {
     $this->actingAs($this->admin)
         ->post(route('admin.pay-slips.store'), $data)
         ->assertSessionHasErrors($field);
-})->with(['user_id', 'month', 'year', 'gross_salary']);
+})->with(['user_id', 'month', 'year']);

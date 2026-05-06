@@ -35,6 +35,20 @@
 
             <x-form-textarea label="Address" name="address" />
 
+            <div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Salary & Contributions</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">These values are used to auto-compute pay slips. Contribution fields are optional and can be set later.</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <x-form-input label="Basic Salary (Monthly)" name="basic_salary" type="number" step="0.01" :value="old('basic_salary')" />
+                <x-form-input label="Working Days / Month" name="working_days_per_month" type="number" :value="old('working_days_per_month', 22)" />
+                <x-form-input label="SSS Contribution" name="sss_contribution" type="number" step="0.01" :value="old('sss_contribution')" />
+                <x-form-input label="PhilHealth Contribution" name="philhealth_contribution" type="number" step="0.01" :value="old('philhealth_contribution')" />
+                <x-form-input label="Pag-IBIG Contribution" name="pagibig_contribution" type="number" step="0.01" :value="old('pagibig_contribution')" />
+                <x-form-input label="Other Deductions" name="other_deductions" type="number" step="0.01" :value="old('other_deductions', 0)" />
+            </div>
+
             <div class="flex items-center justify-end gap-3">
                 <x-button variant="secondary" :href="route('admin.employees.index')" type="button">Cancel</x-button>
                 <x-button variant="primary">Create Employee</x-button>

@@ -29,6 +29,12 @@ class User extends Authenticatable
         'hire_date',
         'employment_status',
         'employment_type',
+        'basic_salary',
+        'sss_contribution',
+        'philhealth_contribution',
+        'pagibig_contribution',
+        'other_deductions',
+        'working_days_per_month',
     ];
 
     /**
@@ -53,6 +59,11 @@ class User extends Authenticatable
             'password' => 'hashed',
             'date_of_birth' => 'date',
             'hire_date' => 'date',
+            'basic_salary' => 'decimal:2',
+            'sss_contribution' => 'decimal:2',
+            'philhealth_contribution' => 'decimal:2',
+            'pagibig_contribution' => 'decimal:2',
+            'other_deductions' => 'decimal:2',
         ];
     }
 

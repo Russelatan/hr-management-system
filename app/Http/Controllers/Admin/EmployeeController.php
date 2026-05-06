@@ -53,6 +53,12 @@ class EmployeeController extends Controller
             'hire_date' => $validated['hire_date'] ?? null,
             'employment_status' => $validated['employment_status'] ?? 'active',
             'employment_type' => $validated['employment_type'] ?? null,
+            'basic_salary' => $validated['basic_salary'] ?? null,
+            'sss_contribution' => $validated['sss_contribution'] ?? null,
+            'philhealth_contribution' => $validated['philhealth_contribution'] ?? null,
+            'pagibig_contribution' => $validated['pagibig_contribution'] ?? null,
+            'other_deductions' => $validated['other_deductions'] ?? 0,
+            'working_days_per_month' => $validated['working_days_per_month'] ?? 22,
         ]);
 
         return redirect()->route('admin.employees.index')
@@ -147,13 +153,18 @@ class EmployeeController extends Controller
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            // Don't update employee_id - it's auto-generated and should remain unchanged
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
             'hire_date' => $validated['hire_date'] ?? null,
             'employment_status' => $validated['employment_status'],
             'employment_type' => $validated['employment_type'] ?? null,
+            'basic_salary' => $validated['basic_salary'] ?? null,
+            'sss_contribution' => $validated['sss_contribution'] ?? null,
+            'philhealth_contribution' => $validated['philhealth_contribution'] ?? null,
+            'pagibig_contribution' => $validated['pagibig_contribution'] ?? null,
+            'other_deductions' => $validated['other_deductions'] ?? 0,
+            'working_days_per_month' => $validated['working_days_per_month'] ?? 22,
         ];
 
         if (! empty($validated['password'])) {

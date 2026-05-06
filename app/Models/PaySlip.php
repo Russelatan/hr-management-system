@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PaySlip extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'month',
@@ -19,6 +20,7 @@ class PaySlip extends Model
         'file_path',
         'distributed_at',
         'created_by',
+        'computation_notes',
     ];
 
     protected function casts(): array
@@ -28,6 +30,7 @@ class PaySlip extends Model
             'deductions' => 'decimal:2',
             'net_salary' => 'decimal:2',
             'distributed_at' => 'datetime',
+            'computation_notes' => 'array',
         ];
     }
 

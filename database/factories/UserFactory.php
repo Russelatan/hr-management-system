@@ -70,6 +70,29 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'role' => 'employee',
             'employment_status' => 'active',
+            'basic_salary' => 50000.00,
+            'sss_contribution' => 1125.00,
+            'philhealth_contribution' => 625.00,
+            'pagibig_contribution' => 100.00,
+            'other_deductions' => 0.00,
+            'working_days_per_month' => 22,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an employee without salary configuration.
+     */
+    public function employeeWithoutSalary(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'employee',
+            'employment_status' => 'active',
+            'basic_salary' => null,
+            'sss_contribution' => null,
+            'philhealth_contribution' => null,
+            'pagibig_contribution' => null,
+            'other_deductions' => 0,
+            'working_days_per_month' => 22,
         ]);
     }
 }

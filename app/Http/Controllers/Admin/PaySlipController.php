@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePaySlipRequest;
 use App\Models\PaySlip;
 use App\Models\User;
+use App\Services\PaySlipComputationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PaySlipController extends Controller
 {
+    public function __construct(private readonly PaySlipComputationService $computationService) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -43,17 +46,19 @@ class PaySlipController extends Controller
     {
         $validated = $request->validated();
 
-        // Auto-calculate net salary
-        $grossSalary = $validated['gross_salary'];
-        $deductions = $validated['deductions'] ?? 0;
-        $netSalary = $grossSalary - $deductions;
+        $employee = User::findOrFail($validated['user_id']);
 
-        // Validate that deductions don't exceed gross salary
-        if ($deductions > $grossSalary) {
+        if (! $employee->basic_salary) {
             return back()
                 ->withInput()
-                ->withErrors(['deductions' => 'Deductions cannot exceed gross salary.']);
+                ->withErrors(['user_id' => 'This employee does not have a basic salary set. Please update their profile first.']);
         }
+
+        $computation = $this->computationService->compute(
+            $employee,
+            (int) $validated['month'],
+            (int) $validated['year'],
+        );
 
         $filePath = null;
         if ($request->hasFile('file')) {
@@ -61,19 +66,20 @@ class PaySlipController extends Controller
         }
 
         PaySlip::create([
-            'user_id' => $validated['user_id'],
+            'user_id' => $employee->id,
             'month' => $validated['month'],
             'year' => $validated['year'],
-            'gross_salary' => $grossSalary,
-            'deductions' => $deductions,
-            'net_salary' => $netSalary,
+            'gross_salary' => $computation['gross_salary'],
+            'deductions' => $computation['total_deductions'],
+            'net_salary' => $computation['net_salary'],
             'file_path' => $filePath,
             'distributed_at' => now(),
             'created_by' => Auth::id(),
+            'computation_notes' => $computation,
         ]);
 
         return redirect()->route('admin.pay-slips.index')
-            ->with('success', 'Pay slip created and distributed successfully.');
+            ->with('success', 'Pay slip generated and distributed successfully.');
     }
 
     /**
