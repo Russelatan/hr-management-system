@@ -28,8 +28,14 @@
         {{-- User dropdown --}}
         <div x-data="{ open: false }" class="relative">
             <button @click="open = !open" class="flex items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                <div class="h-8 w-8 overflow-hidden rounded-full">
+                    @if(Auth::user()->avatar_path)
+                        <img src="{{ Auth::user()->avatarUrl() }}" alt="{{ Auth::user()->name }}" class="h-full w-full object-cover">
+                    @else
+                        <div class="flex h-full w-full items-center justify-center bg-indigo-600 text-sm font-semibold text-white">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
+                    @endif
                 </div>
                 <span class="hidden text-sm font-medium text-gray-700 dark:text-gray-200 sm:block">{{ Auth::user()->name }}</span>
                 <svg class="hidden h-4 w-4 text-gray-400 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

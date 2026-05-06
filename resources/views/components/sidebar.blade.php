@@ -95,8 +95,14 @@
     {{-- User info + Logout --}}
     <div class="border-t border-white/10 px-3 py-4">
         <div class="mb-3 flex items-center gap-3 px-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+            <div class="h-9 w-9 shrink-0 overflow-hidden rounded-full">
+                @if(Auth::user()->avatar_path)
+                    <img src="{{ Auth::user()->avatarUrl() }}" alt="{{ Auth::user()->name }}" class="h-full w-full object-cover">
+                @else
+                    <div class="flex h-full w-full items-center justify-center bg-indigo-600 text-sm font-semibold text-white">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+                @endif
             </div>
             <div class="min-w-0">
                 <p class="truncate text-sm font-medium text-white">{{ Auth::user()->name }}</p>

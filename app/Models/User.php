@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property \Carbon\Carbon|null $date_of_birth
+ * @property \Carbon\Carbon|null $hire_date
+ * @property \Carbon\Carbon|null $email_verified_at
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -25,6 +30,7 @@ class User extends Authenticatable
         'employee_id',
         'phone',
         'address',
+        'avatar_path',
         'date_of_birth',
         'hire_date',
         'employment_status',
@@ -85,6 +91,54 @@ class User extends Authenticatable
     public function attendanceRecords()
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    public function avatarUrl(): string
+    {
+        if (! $this->avatar_path) {
+            return '';
+        }
+
+        $filename = basename($this->avatar_path);
+
+        return route('avatar.show', ['filename' => $filename]);
+    }
+
+    public function yearsOfService(): int
+    {
+        return $this->hire_date
+            ? (int) $this->hire_date->diffInYears(now())
+            : 0;
+    }
+
+    public function dailyRate(): float
+    {
+        $workingDays = (int) ($this->working_days_per_month ?? 22);
+
+        return $workingDays > 0
+            ? round((float) $this->basic_salary / $workingDays, 2)
+            : 0.0;
+    }
+
+    public function halfDayRate(): float
+    {
+        return round($this->dailyRate() / 2, 2);
+    }
+
+    public function hourlyRate(): float
+    {
+        return round($this->dailyRate() / 8, 2);
+    }
+
+    public function totalMonthlyStatutoryDeductions(): float
+    {
+        return round(
+            (float) $this->sss_contribution
+            + (float) $this->philhealth_contribution
+            + (float) $this->pagibig_contribution
+            + (float) $this->other_deductions,
+            2
+        );
     }
 
     public function isAdmin(): bool

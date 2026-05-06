@@ -26,6 +26,10 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/avatars/{filename}', [\App\Http\Controllers\AvatarController::class, 'show'])
+    ->where('filename', '[A-Za-z0-9._-]+')
+    ->name('avatar.show');
+
 // Password reset routes
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
