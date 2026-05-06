@@ -18,7 +18,7 @@
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 @foreach($leaveBalances as $balance)
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ucfirst(str_replace('-', ' ', $balance->leave_type)) }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ucwords(str_replace('-', ' ', $balance->leave_type)) }}</p>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $balance->remaining_days }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">days remaining</p>
                         @if($balance->hasHoursSupport())
@@ -32,7 +32,7 @@
 
     <x-card>
         <form method="POST" action="{{ route('employee.leave.store') }}" enctype="multipart/form-data" class="space-y-6"
-              x-data="{ leaveType: '{{ old('leave_type', '') }}', hoursTypes: ['sick', 'vacation'], maternityType: 'maternity-leave' }">
+              x-data="{ leaveType: '{{ old('leave_type', '') }}', hoursTypes: ['sick', 'vacation'], docTypes: ['maternity-leave', 'paternity-leave', 'bereavement-leave'] }">
             @csrf
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -49,19 +49,19 @@
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave blank for full days. Max 8 hours.</p>
                 </div>
 
-                <div x-show="leaveType === maternityType" x-transition x-cloak class="md:col-span-2">
+                <div x-show="docTypes.includes(leaveType)" x-transition x-cloak class="md:col-span-2">
                     <label for="document" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Supporting Document
-                        <span x-show="leaveType === maternityType" class="text-red-500">*</span>
+                        <span x-show="docTypes.includes(leaveType)" class="text-red-500">*</span>
                     </label>
                     <input type="file" name="document" id="document" accept=".pdf,.jpg,.jpeg,.png"
-                           :required="leaveType === maternityType"
+                           :required="docTypes.includes(leaveType)"
                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-indigo-900/30 dark:file:text-indigo-400">
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Accepted: PDF, JPG, PNG. Max 5MB.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Required for maternity, paternity, and bereavement leave. Accepted: PDF, JPG, PNG. Max 5MB.</p>
                 </div>
             </div>
 
-            <x-form-textarea label="Reason" name="reason" :required="true" :rows="4" />
+            <x-form-textarea label="Reason" name="reason" :rows="4" />
 
             <div class="flex items-center justify-end gap-3">
                 <x-button variant="secondary" :href="route('employee.leave.index')" type="button">Cancel</x-button>

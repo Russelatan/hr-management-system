@@ -7,6 +7,7 @@ use App\Http\Requests\Employee\StoreLeaveRequest;
 use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,13 +45,16 @@ class LeaveRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLeaveRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(StoreLeaveRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = Carbon::parse($validated['end_date']);
-        $daysRequested = $startDate->diffInDays($endDate) + 1;
+
+        // Count only weekdays (Mon–Fri), excluding weekends
+        $daysRequested = $startDate->diffInWeekdays($endDate) + ($startDate->isWeekday() ? 1 : 0);
+
         $hoursRequested = isset($validated['hours_requested']) ? (int) $validated['hours_requested'] : null;
         $isSickOrVacation = in_array($validated['leave_type'], LeaveRequest::leaveTypesWithHoursSupport());
 
@@ -59,20 +63,34 @@ class LeaveRequestController extends Controller
             $daysRequested = 0;
         }
 
-        // Check leave balance for sick/vacation
-        if ($isSickOrVacation) {
-            $balance = LeaveBalance::where('user_id', Auth::id())
-                ->where('leave_type', $validated['leave_type'])
-                ->where('year', now()->year)
-                ->first();
+        // Overlap detection — reject if any approved or pending leave overlaps
+        $hasOverlap = LeaveRequest::where('user_id', Auth::id())
+            ->whereIn('status', ['pending', 'approved'])
+            ->where('start_date', '<=', $validated['end_date'])
+            ->where('end_date', '>=', $validated['start_date'])
+            ->exists();
 
+        if ($hasOverlap) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'You already have a pending or approved leave request that overlaps with these dates.');
+        }
+
+        // Check leave balance for all types that have a balance record
+        $leaveYear = $startDate->year;
+        $balance = LeaveBalance::where('user_id', Auth::id())
+            ->where('leave_type', $validated['leave_type'])
+            ->where('year', $leaveYear)
+            ->first();
+
+        if ($balance) {
             if ($hoursRequested) {
-                if ($balance && $balance->remaining_hours < $hoursRequested) {
+                if ($balance->remaining_hours < $hoursRequested) {
                     return redirect()->back()
                         ->withInput()
                         ->with('error', "Insufficient leave balance. You have {$balance->remaining_hours} hours remaining.");
                 }
-            } elseif ($balance && $balance->remaining_days < $daysRequested) {
+            } elseif ($balance->remaining_days < $daysRequested) {
                 return redirect()->back()
                     ->withInput()
                     ->with('error', "Insufficient leave balance. You have {$balance->remaining_days} days remaining.");
@@ -107,7 +125,6 @@ class LeaveRequestController extends Controller
      */
     public function show(LeaveRequest $leave_request)
     {
-        // Ensure employee can only view their own leave requests
         if ($leave_request->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access.');
         }
@@ -115,6 +132,25 @@ class LeaveRequestController extends Controller
         $leaveRequest = $leave_request->load('approver');
 
         return view('employee.leave.show', compact('leaveRequest'));
+    }
+
+    /**
+     * Cancel a pending leave request.
+     */
+    public function cancel(LeaveRequest $leave_request): RedirectResponse
+    {
+        if ($leave_request->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        if ($leave_request->status !== 'pending') {
+            abort(422, 'Only pending leave requests can be cancelled.');
+        }
+
+        $leave_request->update(['status' => 'cancelled']);
+
+        return redirect()->route('employee.leave.index')
+            ->with('success', 'Leave request cancelled successfully.');
     }
 
     /**

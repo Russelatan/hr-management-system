@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LeaveRequest extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'leave_type',
@@ -54,6 +55,6 @@ class LeaveRequest extends Model
 
     public static function leaveTypesRequiringDocument(): array
     {
-        return ['maternity-leave'];
+        return ['maternity-leave', 'paternity-leave', 'bereavement-leave'];
     }
 }

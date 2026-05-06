@@ -16,7 +16,7 @@
         <dl class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
             <div>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Leave Type</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ ucfirst(str_replace('-', ' ', $leaveRequest->leave_type)) }}</dd>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ ucwords(str_replace('-', ' ', $leaveRequest->leave_type)) }}</dd>
             </div>
             <div>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</dt>
@@ -68,5 +68,14 @@
                 </div>
             @endif
         </dl>
+        @if($leaveRequest->status === 'pending')
+            <div class="mt-8 flex items-center justify-end border-t border-gray-100 pt-6 dark:border-gray-700">
+                <form action="{{ route('employee.leave.cancel', $leaveRequest) }}" method="POST"
+                      onsubmit="return confirm('Are you sure you want to cancel this leave request?')">
+                    @csrf
+                    <x-button variant="secondary">Cancel Request</x-button>
+                </form>
+            </div>
+        @endif
     </x-card>
 @endsection

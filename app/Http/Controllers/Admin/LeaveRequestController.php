@@ -42,7 +42,7 @@ class LeaveRequestController extends Controller
     /**
      * Approve a leave request.
      */
-    public function approve(Request $request, LeaveRequest $leave_request)
+    public function approve(Request $request, LeaveRequest $leave_request): \Illuminate\Http\RedirectResponse
     {
         $leaveRequest = $leave_request;
 
@@ -51,28 +51,35 @@ class LeaveRequestController extends Controller
                 ->with('error', 'This leave request has already been processed.');
         }
 
+        $leaveYear = $leaveRequest->start_date->year;
+
+        $balance = LeaveBalance::where('user_id', $leaveRequest->user_id)
+            ->where('leave_type', $leaveRequest->leave_type)
+            ->where('year', $leaveYear)
+            ->first();
+
+        if (! $balance) {
+            return redirect()->back()
+                ->with('error', 'No leave balance record found for this employee and leave type. Please set up their leave balance first.');
+        }
+
+        if ($leaveRequest->hours_requested) {
+            if ($balance->remaining_hours < $leaveRequest->hours_requested) {
+                return redirect()->back()
+                    ->with('error', "Insufficient leave balance. Employee has {$balance->remaining_hours} hours remaining.");
+            }
+        } else {
+            if ($balance->remaining_days < $leaveRequest->days_requested) {
+                return redirect()->back()
+                    ->with('error', "Insufficient leave balance. Employee has {$balance->remaining_days} days remaining.");
+            }
+        }
+
         $leaveRequest->update([
             'status' => 'approved',
             'approved_by' => Auth::id(),
             'approved_at' => now(),
         ]);
-
-        // Update leave balance
-        $balance = LeaveBalance::firstOrCreate(
-            [
-                'user_id' => $leaveRequest->user_id,
-                'leave_type' => $leaveRequest->leave_type,
-                'year' => now()->year,
-            ],
-            [
-                'total_days' => 0,
-                'used_days' => 0,
-                'remaining_days' => 0,
-                'total_hours' => 0,
-                'used_hours' => 0,
-                'remaining_hours' => 0,
-            ]
-        );
 
         if ($leaveRequest->hours_requested) {
             $balance->increment('used_hours', $leaveRequest->hours_requested);
@@ -89,7 +96,7 @@ class LeaveRequestController extends Controller
     /**
      * Reject a leave request.
      */
-    public function reject(Request $request, LeaveRequest $leave_request)
+    public function reject(Request $request, LeaveRequest $leave_request): \Illuminate\Http\RedirectResponse
     {
         $leaveRequest = $leave_request;
 

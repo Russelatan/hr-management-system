@@ -20,7 +20,7 @@
             </div>
             <div>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Leave Type</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ ucfirst(str_replace('-', ' ', $leaveRequest->leave_type)) }}</dd>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ ucwords(str_replace('-', ' ', $leaveRequest->leave_type)) }}</dd>
             </div>
             <div>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</dt>

@@ -8,7 +8,7 @@
     <div class="mb-6 flex flex-wrap gap-2">
         @php
             $currentStatus = request('status', 'all');
-            $tabs = ['all' => 'All', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'];
+            $tabs = ['all' => 'All', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'];
         @endphp
         @foreach($tabs as $key => $label)
             <a href="{{ route('admin.leave-requests.index', ['status' => $key]) }}"
@@ -32,7 +32,7 @@
         @forelse($leaveRequests as $request)
             <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-100 sm:pl-6">{{ $request->user->name }}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ ucfirst(str_replace('-', ' ', $request->leave_type)) }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ ucwords(str_replace('-', ' ', $request->leave_type)) }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->start_date->format('M d, Y') }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->end_date->format('M d, Y') }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">

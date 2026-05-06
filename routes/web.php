@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\LeaveBalanceController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -46,6 +47,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('leave-requests/{leave_request}/approve', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'approve'])->name('leave-requests.approve');
     Route::post('leave-requests/{leave_request}/reject', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])->name('leave-requests.reject');
     Route::resource('attendance', \App\Http\Controllers\Admin\AttendanceController::class);
+
+    Route::get('leave-balances', [LeaveBalanceController::class, 'index'])->name('leave-balances.index');
+    Route::get('leave-balances/{leave_balance}/edit', [LeaveBalanceController::class, 'edit'])->name('leave-balances.edit');
+    Route::put('leave-balances/{leave_balance}', [LeaveBalanceController::class, 'update'])->name('leave-balances.update');
 });
 
 // Employee routes
@@ -60,6 +65,7 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
     Route::get('/leave/create', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'create'])->name('leave.create');
     Route::post('/leave', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'store'])->name('leave.store');
     Route::get('/leave/{leave_request}/document', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'downloadDocument'])->name('leave.document');
+    Route::post('/leave/{leave_request}/cancel', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'cancel'])->name('leave.cancel');
     Route::get('/leave/{leave_request}', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'show'])->name('leave.show');
 
     Route::get('/attendance', [\App\Http\Controllers\Employee\AttendanceController::class, 'index'])->name('attendance.index');

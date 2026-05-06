@@ -18,7 +18,7 @@
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                 @foreach($leaveBalances as $balance)
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ucfirst(str_replace('-', ' ', $balance->leave_type)) }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ucwords(str_replace('-', ' ', $balance->leave_type)) }}</p>
                         <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $balance->remaining_days }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">of {{ $balance->total_days }} days</p>
                         @if($balance->hasHoursSupport())
@@ -43,7 +43,7 @@
 
         @forelse($leaveRequests as $request)
             <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-100 sm:pl-6">{{ ucfirst($request->leave_type) }}</td>
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-gray-100 sm:pl-6">{{ ucwords(str_replace('-', ' ', $request->leave_type)) }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->start_date->format('M d, Y') }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->end_date->format('M d, Y') }}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $request->days_requested }}</td>
